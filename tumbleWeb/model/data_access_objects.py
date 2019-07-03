@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Table, Integer, String, Enum, DateTime, Boolean, UniqueConstraint
+from sqlalchemy import Column, ForeignKey, Table, Integer, String, Enum, DateTime, Boolean, UniqueConstraint, BigInteger, Float, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import func
@@ -100,6 +100,10 @@ class Tumbleweed(BaseWithConverter):
     subsystems = relationship("SubSystem", uselist=True, back_populates="tumbleweed")
     runs = relationship("Run", uselist=True, back_populates="tumbleweed")
 
+    # fields
+    address = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    name = Column(String)
 
 
 class TumbleBase(BaseWithConverter):
@@ -117,6 +121,15 @@ class TumbleBase(BaseWithConverter):
     byte_data_points = relationship("ByteData", uselist=True, secondary=tumblebase_bytedata, back_populates="tumblebases")
     sent_commands = relationship("Command", uselist=True, back_populates="sender_base")
     received_commands = relationship("Command", uselist=True, secondary=tumblebase_command, back_populates="received_from_bases")
+
+    # fields
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    address = Column(String, nullable=False)
+    name = Column(String)
+    ip = Column(String)
+    port = Column(Integer)
+    command_route = Column(String)
+
 
 
 class Run(BaseWithConverter):
@@ -137,6 +150,12 @@ class Run(BaseWithConverter):
     byte_data_points = relationship("ByteData", uselist=True, back_populates="run")
     string_data_points = relationship("StringData", uselist=True, back_populates="run")
 
+    # fields
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    ended_at = Column(DateTime(timezone=True))
+    name = Column(String)
+    description = Column(String)
+
 
 class SubSystem(BaseWithConverter):
     __tablename__ = "subsystem"
@@ -155,6 +174,11 @@ class SubSystem(BaseWithConverter):
     string_data_sources = relationship("StringDataSource", uselist=True, back_populates="subsystem")
     byte_data_sources = relationship("ByteDataSource", uselist=True, back_populates="subsystem")
 
+    # fields
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    name = Column(String, nullable=False)
+    description = Column(String)
+
 
 class IntDataSource(BaseWithConverter):
     __tablename__ = "intdatasource"
@@ -169,6 +193,15 @@ class IntDataSource(BaseWithConverter):
     subsystem = relationship("SubSystem", uselist=False, back_populates="int_data_source")
     data_points = relationship("IntData", uselist=True, back_populates="data_source")
 
+    # fields
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    short_key = Column(String, nullable=False)
+    dtype = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    type = Column(String)
+    description = Column(String)
+
+
 class LongDataSource(BaseWithConverter):
     __tablename__ = "longdatasource"
 
@@ -181,6 +214,14 @@ class LongDataSource(BaseWithConverter):
     # relationships
     subsystem = relationship("SubSystem", uselist=False, back_populates="long_data_source")
     data_points = relationship("LongData", uselist=True, back_populates="data_source")
+
+    # fields
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    short_key = Column(String, nullable=False)
+    dtype = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    type = Column(String)
+    description = Column(String)
 
 
 class FloatDataSource(BaseWithConverter):
@@ -196,6 +237,14 @@ class FloatDataSource(BaseWithConverter):
     subsystem = relationship("SubSystem", uselist=False, back_populates="float_data_source")
     data_points = relationship("FloatData", uselist=True, back_populates="data_source")
 
+    # fields
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    short_key = Column(String, nullable=False)
+    dtype = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    type = Column(String)
+    description = Column(String)
+
 
 class StringDataSource(BaseWithConverter):
     __tablename__ = "stringdatasource"
@@ -210,6 +259,14 @@ class StringDataSource(BaseWithConverter):
     subsystem = relationship("SubSystem", uselist=False, back_populates="string_data_source")
     data_points = relationship("StringData", uselist=True, back_populates="data_source")
 
+    # fields
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    short_key = Column(String, nullable=False)
+    dtype = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    type = Column(String)
+    description = Column(String)
+
 
 class ByteDataSource(BaseWithConverter):
     __tablename__ = "bytedatasource"
@@ -223,6 +280,14 @@ class ByteDataSource(BaseWithConverter):
     # relationships
     subsystem = relationship("SubSystem", uselist=False, back_populates="byte_data_source")
     data_points = relationship("ByteData", uselist=True, back_populates="data_source")
+
+    # fields
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    short_key = Column(String, nullable=False)
+    dtype = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    type = Column(String)
+    description = Column(String)
 
 
 class LongData(DataPoint):
@@ -240,6 +305,16 @@ class LongData(DataPoint):
     data_source = relationship("LongDataSource", uselist=False, back_populates="data_points")
     run = relationship("Run", uselist=False, back_populates="long_data_points")
 
+    # fields
+    receiving_start = Column(DateTime(timezone=True), nullable=False)
+    receiving_done = Column(DateTime(timezone=True))
+    data = Column(BigInteger)
+    packets = Column(Integer, nullable=False)
+    packets_received = Column(Integer, nullable=False)
+    message_id = Column(Integer, nullable=False)
+    size = Column(Integer)
+
+
 
 class IntData(DataPoint):
     __tablename__ = "intdata"
@@ -255,6 +330,15 @@ class IntData(DataPoint):
     tumblebases = relationship("TumbleBase", uselist=True, secondary=tumblebase_intdata, back_populates="int_data_points")
     data_source = relationship("IntDataSource", uselist=False, back_populates="data_points")
     run = relationship("Run", uselist=False, back_populates="int_data_points")
+
+    # fields
+    receiving_start = Column(DateTime(timezone=True), nullable=False)
+    receiving_done = Column(DateTime(timezone=True))
+    data = Column(Integer)
+    packets = Column(Integer, nullable=False)
+    packets_received = Column(Integer, nullable=False)
+    message_id = Column(Integer, nullable=False)
+    size = Column(Integer)
 
 
 class FloatData(DataPoint):
@@ -272,6 +356,15 @@ class FloatData(DataPoint):
     data_source = relationship("FloatDataSource", uselist=False, back_populates="data_points")
     run = relationship("Run", uselist=False, back_populates="float_data_points")
 
+    # fields
+    receiving_start = Column(DateTime(timezone=True), nullable=False)
+    receiving_done = Column(DateTime(timezone=True))
+    data = Column(Float)
+    packets = Column(Integer, nullable=False)
+    packets_received = Column(Integer, nullable=False)
+    message_id = Column(Integer, nullable=False)
+    size = Column(Integer)
+
 
 class StringData(DataPoint):
     __tablename__ = "stringdata"
@@ -287,6 +380,15 @@ class StringData(DataPoint):
     tumblebases = relationship("TumbleBase", uselist=True, secondary=tumblebase_stringdata, back_populates="string_data_points")
     data_source = relationship("StringDataSource", uselist=False, back_populates="data_points")
     run = relationship("Run", uselist=False, back_populates="string_data_points")
+
+    # fields
+    receiving_start = Column(DateTime(timezone=True), nullable=False)
+    receiving_done = Column(DateTime(timezone=True))
+    data = Column(String)
+    packets = Column(Integer, nullable=False)
+    packets_received = Column(Integer, nullable=False)
+    message_id = Column(Integer, nullable=False)
+    size = Column(Integer)
 
 
 class ByteData(DataPoint):
@@ -304,6 +406,15 @@ class ByteData(DataPoint):
     data_source = relationship("ByteDataSource", uselist=False, back_populates="data_points")
     run = relationship("Run", uselist=False, back_populates="byte_data_points")
 
+    # fields
+    receiving_start = Column(DateTime(timezone=True), nullable=False)
+    receiving_done = Column(DateTime(timezone=True))
+    data = Column(LargeBinary)
+    packets = Column(Integer, nullable=False)
+    packets_received = Column(Integer, nullable=False)
+    message_id = Column(Integer, nullable=False)
+    size = Column(Integer)
+
 
 class CommandType(BaseWithConverter):
     __tablename__ = "commandtype"
@@ -317,6 +428,11 @@ class CommandType(BaseWithConverter):
     # relationships
     tumbleweed = relationship("Tumbleweed", uselist=False, back_populates="command_types")
     commands = relationship("Commands", uselist=True, back_populates="command_type")
+
+    # fields
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    type = Column(String, nullable=False)
+    description = Column(String)
 
 
 class Command(BaseWithConverter):
@@ -335,3 +451,12 @@ class Command(BaseWithConverter):
     sender_base = relationship("TumbleBase", uselist=False, back_populates="sent_commands")
     received_from_bases = relationship("TumbleBase", uselist=True, secondary=tumblebase_command, back_populates="received_commands")
     run = relationship("Run", uselist=False, back_populates="commands")
+
+    # fields
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    args = Column(String)
+    transmitted = Column(Boolean, nullable=False)
+    response = Column(String)
+    received_response_at = Column(DateTime(timezone=True))
+    response_message_id = Column(Integer)
+
