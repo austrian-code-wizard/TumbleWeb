@@ -124,9 +124,9 @@ class TumbleBase(BaseWithConverter):
 
     # fields
     created_at = Column(DateTime(timezone=True), nullable=False)
-    address = Column(String, nullable=False)
+    address = Column(String)
     name = Column(String)
-    ip = Column(String)
+    host = Column(String)
     port = Column(Integer)
     command_route = Column(String)
 
@@ -178,6 +178,51 @@ class SubSystem(BaseWithConverter):
     created_at = Column(DateTime(timezone=True), nullable=False)
     name = Column(String, nullable=False)
     description = Column(String)
+
+
+class CommandType(BaseWithConverter):
+    __tablename__ = "commandtype"
+
+    # primary key
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # foreign keys
+    tumbleweed_id = Column(Integer, ForeignKey('tumbleweed.id'))
+
+    # relationships
+    tumbleweed = relationship("Tumbleweed", uselist=False, back_populates="command_types")
+    commands = relationship("Commands", uselist=True, back_populates="command_type")
+
+    # fields
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    type = Column(String, nullable=False)
+    description = Column(String)
+
+
+class Command(BaseWithConverter):
+    __tablename__ = "command"
+
+    # primary key
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # foreign key
+    command_type_id = Column(Integer, ForeignKey("commandtype.id"))
+    sender_base_id = Column(Integer, ForeignKey("tumblebase.id"))
+    run_id = Column(Integer, ForeignKey("run.id"))
+
+    # relationships
+    command_type = relationship("CommandType", uselist=False, back_populates="commands")
+    sender_base = relationship("TumbleBase", uselist=False, back_populates="sent_commands")
+    received_from_bases = relationship("TumbleBase", uselist=True, secondary=tumblebase_command, back_populates="received_commands")
+    run = relationship("Run", uselist=False, back_populates="commands")
+
+    # fields
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    args = Column(String)
+    transmitted = Column(Boolean, nullable=False)
+    response = Column(String)
+    received_response_at = Column(DateTime(timezone=True))
+    response_message_id = Column(Integer)
 
 
 class IntDataSource(BaseWithConverter):
@@ -415,48 +460,4 @@ class ByteData(DataPoint):
     message_id = Column(Integer, nullable=False)
     size = Column(Integer)
 
-
-class CommandType(BaseWithConverter):
-    __tablename__ = "commandtype"
-
-    # primary key
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-    # foreign keys
-    tumbleweed_id = Column(Integer, ForeignKey('tumbleweed.id'))
-
-    # relationships
-    tumbleweed = relationship("Tumbleweed", uselist=False, back_populates="command_types")
-    commands = relationship("Commands", uselist=True, back_populates="command_type")
-
-    # fields
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    type = Column(String, nullable=False)
-    description = Column(String)
-
-
-class Command(BaseWithConverter):
-    __tablename__ = "command"
-
-    # primary key
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-    # foreign key
-    command_type_id = Column(Integer, ForeignKey("commandtype.id"))
-    sender_base_id = Column(Integer, ForeignKey("tumblebase.id"))
-    run_id = Column(Integer, ForeignKey("run.id"))
-
-    # relationships
-    command_type = relationship("CommandType", uselist=False, back_populates="commands")
-    sender_base = relationship("TumbleBase", uselist=False, back_populates="sent_commands")
-    received_from_bases = relationship("TumbleBase", uselist=True, secondary=tumblebase_command, back_populates="received_commands")
-    run = relationship("Run", uselist=False, back_populates="commands")
-
-    # fields
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    args = Column(String)
-    transmitted = Column(Boolean, nullable=False)
-    response = Column(String)
-    received_response_at = Column(DateTime(timezone=True))
-    response_message_id = Column(Integer)
 

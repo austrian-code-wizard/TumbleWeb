@@ -38,24 +38,169 @@ class BaseClass:
 
 
 @dataclass
-class Image(BaseClass):
+class Tumbleweed(BaseClass):
 
     # attributes
-    image_path: str = None
-    saved_at: datetime = None
+    id: int
+    address: str
+    name: str
+    created_at: datetime
+
+
+@dataclass
+class TumbleBase(BaseClass):
+
+    # attributes
+    id: int
+    created_at: datetime
+    address: str
+    name: str
+    host: str
+    port: int
+    command_route: str
+
+
+@dataclass
+class Run(BaseClass):
+
+    # attributes
+    id: int
+    created_at: datetime
+    ended_at: datetime
+    name: str
+    description: str
+    tumbleweed_id: int
+
+
+@dataclass
+class SubSystem(BaseClass):
+
+    # attributes
+    id: int
+    tumbleweed_id: int
+    created_at: datetime
+    name: str
+    description: str
+
+
+@dataclass
+class CommandType(BaseClass):
+
+    # attributes
+    id: int
+    tumbleweed_id: int
+    created_at: datetime
+    type: str
+    description: str
+
 
 @dataclass
 class Command(BaseClass):
 
     # attributes
-    command: str = None
-    arguments: str = None
-    saved_at: datetime = None
+    id: int
+    created_at: datetime
+    run_id: int
+    sender_base_id: int
+    command_type_id: int
+    args: str
+    transmitted: bool
+    response: str
+    received_response_at: datetime
+    response_message_id: int
+
 
 @dataclass
-class Message(BaseClass):
+class DataSource(BaseClass):
 
     # attributes
-    message: str = None
-    saved_at: datetime = None
+    id: int
+    subsystem_id: int
+    created_at: datetime
+    short_key: str
+    dtype: str
+    name: str
+    type: str
+    description: str
+
+
+@dataclass
+class LongData(BaseClass):
+
+    # attributes
+    id: int
+    data_source_id: int
+    run_id: int
+    receiving_start: datetime
+    receiving_done: datetime
+    data: int
+    packets: int
+    packets_received: int
+    message_id: int
+    size: int
+
+
+@dataclass
+class IntData(BaseClass):
+
+    # attributes
+    id: int
+    data_source_id: int
+    run_id: int
+    receiving_start: datetime
+    receiving_done: datetime
+    data: int
+    packets: int
+    packets_received: int
+    message_id: int
+    size: int
+
+
+@dataclass
+class FloatData(BaseClass):
+
+    # attributes
+    id: int
+    data_source_id: int
+    run_id: int
+    receiving_start: datetime
+    receiving_done: datetime
+    data: float
+    packets: int
+    packets_received: int
+    message_id: int
+    size: int
+
+
+@dataclass
+class StringData(BaseClass):
+
+    # attributes
+    id: int
+    data_source_id: int
+    run_id: int
+    receiving_start: datetime
+    receiving_done: datetime
+    data: str
+    packets: int
+    packets_received: int
+    message_id: int
+    size: int
+
+
+@dataclass
+class ByteData(BaseClass):
+
+    # attributes
+    id: int
+    data_source_id: int
+    run_id: int
+    receiving_start: datetime
+    receiving_done: datetime
+    data: bytes
+    packets: int
+    packets_received: int
+    message_id: int
+    size: int
+
 
