@@ -1,4 +1,4 @@
-from tumbleWeb.model.data_access_objects import Image, Message, Command
+from tumbleWeb.model.data_access_objects import Tumbleweed, TumbleBase, Run, SubSystem, Command, CommandType, LongDataSource, IntDataSource, FloatDataSource, StringDataSource, ByteDataSource, LongData, IntData, FloatData, StringData, ByteData
 from tumbleWeb.logger.logger import LoggerFactory
 from abc import abstractmethod
 from tumbleWeb.util.mode import Mode
@@ -53,28 +53,70 @@ class Repository:
         return cls(logger)
 
 
-class ImageRepository(Repository):
+class TumbleweedRepository(Repository):
     """
-    A repository for Images.
+    A repository for Tumbleweeds.
     """
 
     def __init__(self, logger):
-        super().__init__(logger, Image)
+        super().__init__(logger, Tumbleweed)
 
     def delete_entity(self, entity_id, session):
         raise NotImplementedError("Not available!")
 
 
-class MessageRepository(Repository):
+class TumbleBaseRepository(Repository):
+    """
+    A repository for TumbleBases.
+    """
 
     def __init__(self, logger):
-        super().__init__(logger, Message)
+        super().__init__(logger, TumbleBase)
+
+    def delete_entity(self, entity_id, session):
+        raise NotImplementedError("Not available!")
+
+
+class RunRepository(Repository):
+    """
+    A repository for Runs.
+    """
+
+    def __init__(self, logger):
+        super().__init__(logger, Run)
+
+    def delete_entity(self, entity_id, session):
+        raise NotImplementedError("Not available!")
+
+
+class SubSystemRepository(Repository):
+    """
+    A repository for SubSystems.
+    """
+
+    def __init__(self, logger):
+        super().__init__(logger, SubSystem)
+
+    def delete_entity(self, entity_id, session):
+        raise NotImplementedError("Not available!")
+
+
+class CommandTypeRepository(Repository):
+    """
+    A repository for Command Types.
+    """
+
+    def __init__(self, logger):
+        super().__init__(logger, CommandType)
 
     def delete_entity(self, entity_id, session):
         raise NotImplementedError("Not available!")
 
 
 class CommandRepository(Repository):
+    """
+    A repository for Commands.
+    """
 
     def __init__(self, logger):
         super().__init__(logger, Command)
@@ -82,3 +124,122 @@ class CommandRepository(Repository):
     def delete_entity(self, entity_id, session):
         raise NotImplementedError("Not available!")
 
+
+class LongDataSourceRepository(Repository):
+    """
+    A repository for Long data sources.
+    """
+
+    def __init__(self, logger):
+        super().__init__(logger, LongDataSource)
+
+    def delete_entity(self, entity_id, session):
+        raise NotImplementedError("Not available!")
+
+
+class IntDataSourceRepository(Repository):
+    """
+    A repository for Int data sources.
+    """
+
+    def __init__(self, logger):
+        super().__init__(logger, IntDataSource)
+
+    def delete_entity(self, entity_id, session):
+        raise NotImplementedError("Not available!")
+
+
+class FloatDataSourceRepository(Repository):
+    """
+    A repository for Float data sources.
+    """
+
+    def __init__(self, logger):
+        super().__init__(logger, FloatDataSource)
+
+    def delete_entity(self, entity_id, session):
+        raise NotImplementedError("Not available!")
+
+
+class StringDataSourceRepository(Repository):
+    """
+    A repository for String data sources.
+    """
+
+    def __init__(self, logger):
+        super().__init__(logger, StringDataSource)
+
+    def delete_entity(self, entity_id, session):
+        raise NotImplementedError("Not available!")
+
+
+class ByteDataSourceRepository(Repository):
+    """
+    A repository for byte data sources.
+    """
+
+    def __init__(self, logger):
+        super().__init__(logger, ByteDataSource)
+
+    def delete_entity(self, entity_id, session):
+        raise NotImplementedError("Not available!")
+
+
+class LongDataRepository(Repository):
+    """
+    A repository for Long data.
+    """
+
+    def __init__(self, logger):
+        super().__init__(logger, LongData)
+
+    def delete_entity(self, entity_id, session):
+        raise NotImplementedError("Not available!")
+
+
+class IntDataRepository(Repository):
+    """
+    A repository for Int data.
+    """
+
+    def __init__(self, logger):
+        super().__init__(logger, IntData)
+
+    def delete_entity(self, entity_id, session):
+        raise NotImplementedError("Not available!")
+
+
+class FloatDataRepository(Repository):
+    """
+    A repository for Float data.
+    """
+
+    def __init__(self, logger):
+        super().__init__(logger, FloatData)
+
+    def delete_entity(self, entity_id, session):
+        raise NotImplementedError("Not available!")
+
+
+class StringDataRepository(Repository):
+    """
+    A repository for String data.
+    """
+
+    def __init__(self, logger):
+        super().__init__(logger, StringData)
+
+    def delete_entity(self, entity_id, session):
+        raise NotImplementedError("Not available!")
+
+
+class ByteDataRepository(Repository):
+    """
+    A repository for Byte data.
+    """
+
+    def __init__(self, logger):
+        super().__init__(logger, ByteData)
+
+    def delete_entity(self, entity_id, session):
+        raise NotImplementedError("Not available!")

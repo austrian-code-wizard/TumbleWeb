@@ -41,166 +41,155 @@ class BaseClass:
 class Tumbleweed(BaseClass):
 
     # attributes
-    id: int
-    address: str
-    name: str
-    created_at: datetime
+    address: str = None
+    name: str = None
+    created_at: datetime = None
 
 
 @dataclass
 class TumbleBase(BaseClass):
 
     # attributes
-    id: int
-    created_at: datetime
-    address: str
-    name: str
-    host: str
-    port: int
-    command_route: str
+    created_at: datetime = None
+    address: str = None
+    name: str = None
+    host: str = None
+    port: int = None
+    command_route: str = None
 
 
 @dataclass
 class Run(BaseClass):
 
     # attributes
-    id: int
-    created_at: datetime
-    ended_at: datetime
-    name: str
-    description: str
-    tumbleweed_id: int
+    created_at: datetime = None
+    ended_at: datetime = None
+    name: str = None
+    description: str = None
+    tumbleweed_id: int = None
 
 
 @dataclass
 class SubSystem(BaseClass):
 
     # attributes
-    id: int
-    tumbleweed_id: int
-    created_at: datetime
-    name: str
-    description: str
+    tumbleweed_id: int = None
+    created_at: datetime = None
+    name: str = None
+    description: str = None
 
 
 @dataclass
 class CommandType(BaseClass):
 
     # attributes
-    id: int
-    tumbleweed_id: int
-    created_at: datetime
-    type: str
-    description: str
+    tumbleweed_id: int = None
+    created_at: datetime = None
+    type: str = None
+    description: str = None
 
 
 @dataclass
 class Command(BaseClass):
 
     # attributes
-    id: int
-    created_at: datetime
-    run_id: int
-    sender_base_id: int
-    command_type_id: int
-    args: str
-    transmitted: bool
-    response: str
-    received_response_at: datetime
-    response_message_id: int
+    created_at: datetime = None
+    run_id: int = None
+    sender_base_id: int = None
+    command_type_id: int = None
+    args: str = None
+    transmitted: bool = None
+    response: str = None
+    received_response_at: datetime = None
+    response_message_id: int = None
 
 
 @dataclass
 class DataSource(BaseClass):
 
     # attributes
-    id: int
-    subsystem_id: int
-    created_at: datetime
-    short_key: str
-    dtype: str
-    name: str
-    type: str
-    description: str
+    subsystem_id: int = None
+    created_at: datetime = None
+    short_key: str = None
+    dtype: str = None
+    name: str = None
+    type: str = None
+    description: str = None
 
 
 @dataclass
 class LongData(BaseClass):
 
     # attributes
-    id: int
-    data_source_id: int
-    run_id: int
-    receiving_start: datetime
-    receiving_done: datetime
-    data: int
-    packets: int
-    packets_received: int
-    message_id: int
-    size: int
+    data_source_id: int = None
+    run_id: int = None
+    receiving_start: datetime = None
+    receiving_done: datetime = None
+    data: int = None
+    packets: int = None
+    packets_received: int = None
+    message_id: int = None
+    size: int = None
 
 
 @dataclass
 class IntData(BaseClass):
 
     # attributes
-    id: int
-    data_source_id: int
-    run_id: int
-    receiving_start: datetime
-    receiving_done: datetime
-    data: int
-    packets: int
-    packets_received: int
-    message_id: int
-    size: int
+    data_source_id: int = None
+    run_id: int = None
+    receiving_start: datetime = None
+    receiving_done: datetime = None
+    data: int = None
+    packets: int = None
+    packets_received: int = None
+    message_id: int = None
+    size: int = None
 
 
 @dataclass
 class FloatData(BaseClass):
 
     # attributes
-    id: int
-    data_source_id: int
-    run_id: int
-    receiving_start: datetime
-    receiving_done: datetime
-    data: float
-    packets: int
-    packets_received: int
-    message_id: int
-    size: int
+    data_source_id: int = None
+    run_id: int = None
+    receiving_start: datetime = None
+    receiving_done: datetime = None
+    data: float = None
+    packets: int = None
+    packets_received: int = None
+    message_id: int = None
+    size: int = None
 
 
 @dataclass
 class StringData(BaseClass):
 
     # attributes
-    id: int
-    data_source_id: int
-    run_id: int
-    receiving_start: datetime
-    receiving_done: datetime
-    data: str
-    packets: int
-    packets_received: int
-    message_id: int
-    size: int
+    data_source_id: int = None
+    run_id: int = None
+    receiving_start: datetime = None
+    receiving_done: datetime = None
+    data: str = None
+    packets: int = None
+    packets_received: int = None
+    message_id: int = None
+    size: int = None
 
 
 @dataclass
 class ByteData(BaseClass):
 
     # attributes
-    id: int
-    data_source_id: int
-    run_id: int
-    receiving_start: datetime
-    receiving_done: datetime
-    data: bytes
-    packets: int
-    packets_received: int
-    message_id: int
-    size: int
+    data_source_id: int = None
+    run_id: int = None
+    receiving_start: datetime = None
+    receiving_done: datetime = None
+    data: bytes = None
+    packets: int = None
+    packets_received: int = None
+    message_id: int = None
+    size: int = None
+
 
 
