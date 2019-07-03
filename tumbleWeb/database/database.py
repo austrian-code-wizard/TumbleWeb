@@ -84,7 +84,6 @@ if __name__ == "__main__":
     database_connector.connection_string = DatabaseConnector.get_connection_string()
     database_connector.pool_size = DatabaseConnector.get_pool_size()
     database_tools = DatabaseTools(database_connector)
-
     print(">>> create and drop database")
     database_tools.drop_database()
     print(">>> dropped database")
