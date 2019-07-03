@@ -373,7 +373,7 @@ class StringData(DataPoint):
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     # foreign keys
-    data_source_id = Column(Integer, ForeignKey("stringgdatasource.id"))
+    data_source_id = Column(Integer, ForeignKey("stringdatasource.id"))
     run_id = Column(Integer, ForeignKey("run.id"))
 
     # relationships
