@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from util.utils import get_config_parser
 from sqlalchemy.orm import relationship
 from sqlalchemy import func
+import os
 from model.enums import DType, ImageFormat
 import uuid
 
@@ -426,9 +427,11 @@ class ImageData(DataPoint):
         if isinstance(value, bytes) and self.image_format is not None:
             config_parser = get_config_parser("environment.ini")
             path = config_parser["paths"]["images"]
+            if not os.path.exists(path):
+                os.mkdir(path)
             name = str(uuid.uuid1())
             full_path = f"{path}{name}.{self.image_format}"
-            with open(full_path, "wb") as f:
+            with open(full_path, "wb+") as f:
                 f.write(value)
             self.data = full_path
             self._image_bytes = value 

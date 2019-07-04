@@ -112,7 +112,7 @@ class DataSourceSchema(Schema):
     description = fields.String(allow_none=True, required=True)
     subsystem_id = fields.Int(dump_only=True, required=True)
     short_key = fields.String(allow_none=False, required=True)
-    dtype = fields.EnumField(DType, by_value=True, allow_none=False, required=True)
+    dtype = EnumField(DType, by_value=True, allow_none=False, required=True)
     type: fields.String(allow_none=True, required=True)
 
     @post_load
