@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Table, Integer, String, Enum, DateTime, Boolean, UniqueConstraint, BigInteger, Float, LargeBinary
+from sqlalchemy import Column, ForeignKey, Table, Integer, String, Enum, DateTime, Boolean, UniqueConstraint, BigInteger, Float, LargeBinary, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from util.utils import get_config_parser
 from sqlalchemy.orm import relationship
@@ -204,7 +204,7 @@ class CommandType(BaseWithConverter):
 
     # fields
     created_at = Column(DateTime(timezone=True), nullable=False)
-    type = Column(String, nullable=False)
+    type = Column(String, nullable=False, unique=True)
     description = Column(String)
 
 
@@ -259,6 +259,10 @@ class DataSource(BaseWithConverter):
     name = Column(String, nullable=False)
     type = Column(String)
     description = Column(String)
+
+    # args
+    __table_args__ = (UniqueConstraint('short_key', 'subsystem.tumbleweed_id', name='_customer_location_uc'),
+                     )
 
 
 class LongData(DataPoint):

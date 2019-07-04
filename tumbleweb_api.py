@@ -83,6 +83,57 @@ def add_tumblebase():
     else:
         return jsonify({"info": tumblebase_id})
 
+@app.route("/add-subSystem", methods=["POST"])
+@handle_exception
+def add_subSystem():
+    subSystem_json = request.get_json()
+    subSystem_to_insert = app.config["TUMBLEWEB_SUBSYSTEM_SCHEMA"].load(subSystem_json)
+    subSystem_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].save_subSystem(subSystem_to_insert)
+    if subSystem_id is None:
+        return jsonify({"info": f"The SubSystem cannot be added."}), 400
+    else:
+        return jsonify({"info": subSystem_id})
+
+@app.route("/add-commandType", methods=["POST"])
+@handle_exception
+def add_commandType():
+    commandType_json = request.get_json()
+    commandType_to_insert = app.config["TUMBLEWEB_COMMANDTYPE_SCHEMA"].load(commandType_json)
+    commandType_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].save_commandType(commandType_to_insert)
+    if commandType_id is None:
+        return jsonify({"info": f"The CommandType cannot be added."}), 400
+    else:
+        return jsonify({"info": commandType_id})
+
+@app.route("/add-dataSource", methods=["POST"])
+@handle_exception
+def add_dataSource():
+    dataSource_json = request.get_json()
+    dataSource_to_insert = app.config["TUMBLEWEB_DATASOURCE_SCHEMA"].load(dataSource_json)
+    dataSource_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].save_dataSource(dataSource_to_insert)
+    if dataSource_id is None:
+        return jsonify({"info": f"The DataSource cannot be added."}), 400
+    else:
+        return jsonify({"info": dataSource_id})
+
+@app.route("/add-subSystem-to-tumbleweed/<int:subSystem_id>/<int:tumbleweed_id>", methods=["POST"])
+@handle_exception
+def add_subSystem_to_tumbleweed(subSystem_id, tumbleweed_id):
+    tumbleweed_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].add_subSystem_to_tumbleweed(subSystem_id, tumbleweed_id)
+    if tumbleweed_id is None:
+        return jsonify({"info": f"The SubSystem {subSystem_id} cannot be added to Tumbleweed {tumbleweed_id}"})
+    else:
+        return jsonify({"info": tumbleweed_id})
+
+@app.route("/add-dataSource-to-subSystem/<int:dataSource_id>/<int:subSystem_id>", methods=["POST"])
+@handle_exception
+def add_dataSource_to_subSystem(dataSource_id, subSystem_id):
+    subSystem_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].add_dataSource_to_subSystem(dataSource_id, subSystem_id)
+    if subSystem_id is None:
+        return jsonify({"info": f"The DataSource {dataSource_id} cannot be added to SubSystem {subSystem_id}"})
+    else:
+        return jsonify({"info": subSystem_id})
+
 @app.route("/get-tumbleweeds", methods=["GET"])
 @handle_exception
 def get_tumbleweeds():
@@ -91,6 +142,16 @@ def get_tumbleweeds():
         return jsonify({"info": f"No Tumbleweeds exist."}), 400
     else:
         result = app.config["TUMBLEWEB_TUMBLEWEED_SCHEMA"].dump(found_tumbleweeds, many=True)
+        return jsonify(result)
+
+@app.route("/get-tumbleBases", methods=["GET"])
+@handle_exception
+def get_tumbleBases():
+    found_tumbleBases = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_tumbleBases()
+    if found_tumbleBases is None:
+        return jsonify({"info": f"No TumbleBases exist."}), 400
+    else:
+        result = app.config["TUMBLEWEB_TUMBLEBASE_SCHEMA"].dump(found_tumbleBases, many=True)
         return jsonify(result)
 
 

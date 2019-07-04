@@ -208,6 +208,20 @@ class TumbleWebLogic(BusinessLogic):
             return None
 
     @execute_in_session
+    def add_dataSource_to_subSystem(self, dataSource_id, subSystem_id, session=None):
+        dataSource_dao = self.dataSource_repository.get_entity(dataSource_id, session)
+        subSystem_dao = self.subSystem_repository.get_entity(subSystem_id, session)
+        if dataSource_dao is not None and subSystem_dao is not None:
+            subSystem_dao.data_sources.append(dataSource_dao)
+            subSystem_id = self.subSystem_repository.save_entity(subSystem_dao, session)
+            return subSystem_id
+        else:
+            return None
+
+    @execute_in_session
+    def get_dataSource_by_
+
+    @execute_in_session
     def get_tumbleweeds(self, session=None):
         tumbleweeds_dao = self.tumbleweed_repository.get_entities(session)
         if tumbleweeds_dao is not None:
