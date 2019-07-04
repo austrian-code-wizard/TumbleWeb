@@ -1,7 +1,21 @@
 import enum
 
-"""
+
 class DType(enum.Enum):
-    ushort = "H"
-    uInt = "I"
-    ULong = """
+    Int = "I"
+    Long = "L"
+    Float = "F"
+    String = "S"
+    Byte = "B"
+    Image = "M"
+
+class ImageFormat(enum.Enum):
+    JPG = "jpg"
+    JPEG = "jpeg"
+    PNG = "png"
+    GIF = "gif"
+    TIFF = "tiff"
+    BMP = "bmp"
+    BAT = "bat"
+    RAW = "raw"
+

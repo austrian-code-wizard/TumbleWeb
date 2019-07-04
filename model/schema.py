@@ -1,6 +1,8 @@
-from model.data_transfer_objects import Tumbleweed, TumbleBase, Run, SubSystem, DataSource, IntData, LongData, FloatData, StringData, ByteData, Command, CommandType
+from model.data_transfer_objects import Tumbleweed, TumbleBase, Run, SubSystem, DataSource, IntData, LongData, FloatData, StringData, ByteData, Command, CommandType, ImageData
 from marshmallow import Schema, fields, post_load, post_dump, pre_dump
+from marshmallow_enum import EnumField
 from datetime import datetime
+from model.enums import DType, ImageFormat
 import base64
 
 
@@ -110,7 +112,7 @@ class DataSourceSchema(Schema):
     description = fields.String(allow_none=True, required=True)
     subsystem_id = fields.Int(dump_only=True, required=True)
     short_key = fields.String(allow_none=False, required=True)
-    dtype = fields.String(allow_none=False, required=True)
+    dtype = fields.EnumField(DType, by_value=True, allow_none=False, required=True)
     type: fields.String(allow_none=True, required=True)
 
     @post_load
@@ -232,3 +234,29 @@ class ByteDataSchema(Schema):
             to_string = base64.b64encode(to_string)
             data["data"] = to_string
         return data
+
+
+class ImageDataSchema(Schema):
+
+    id = fields.Int(dump_only=True)
+
+    data_source_id = fields.Int(dump_only=True)
+    run_id = fields.Int(dump_only=True)
+    receiving_start = fields.DateTime(allow_none=False, required=True)
+    receiving_done = fields.DateTime(dump_only=True)
+    data = fields.String(dump_only=True)
+    image_bytes = fields.String(load_only=True, allow_none=True, required=True)
+    image_format = EnumField(ImageFormat, by_value=True, allow_none=True, required=True)
+    packets = fields.Int(allow_none=False, required=True)
+    packets_received = fields.Int(allow_none=False, required=True)
+    message_id = fields.Int(allow_none=False, required=True)
+    size = fields.Int(dump_only=True)
+
+    @post_load
+    def convert_base_64(self, data):
+        """we cannot send bytestrings via http post requests, so we must convert to a base 64 string and back"""
+        if data["image_bytes"] is not None:
+            to_bytes = data["image_bytes"].encode()
+            to_bytes = base64.b64decode(to_bytes)
+            data["image_bytes"] = to_bytes
+        return ImageData(**data)

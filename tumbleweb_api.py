@@ -72,6 +72,16 @@ def add_tumbleweed():
     else:
         return jsonify({"info": tumbleweed_id})
 
+@app.route("/add-tumblebase", methods=["POST"])
+@handle_exception
+def add_tumblebase():
+    tumblebase_json = request.get_json()
+    tumblebase_to_insert = app.config["TUMBLEWEB_TUMBLEBASE_SCHEMA"].load(tumblebase_json)
+    tumblebase_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].save_tumblebase(tumblebase_to_insert)
+    if tumblebase_id is None:
+        return jsonify({"info": f"The tumblebase cannot be added."}), 400
+    else:
+        return jsonify({"info": tumblebase_id})
 
 @app.route("/get-tumbleweeds", methods=["GET"])
 @handle_exception

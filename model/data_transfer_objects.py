@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
+from model.enums import ImageFormat, DType
+
 
 
 @dataclass
@@ -111,7 +113,7 @@ class DataSource(BaseClass):
     subsystem_id: int = None
     created_at: datetime = None
     short_key: str = None
-    dtype: str = None
+    dtype: DType = None
     name: str = None
     type: str = None
     description: str = None
@@ -191,5 +193,21 @@ class ByteData(BaseClass):
     message_id: int = None
     size: int = None
 
+
+@dataclass
+class ImageData(BaseClass):
+
+    # attributes
+    data_source_id: int = None
+    run_id: int = None
+    receiving_start: datetime = None
+    receiving_done: datetime = None
+    data: str = None
+    image_bytes: bytes = None
+    image_format: ImageFormat = None
+    packets: int = None
+    packets_received: int = None
+    message_id: int = None
+    size: int = None
 
 

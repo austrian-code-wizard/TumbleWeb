@@ -1,8 +1,8 @@
-from model.data_access_objects import Tumbleweed, TumbleBase, Run, Command, CommandType, SubSystem, LongDataSource, IntDataSource, FloatDataSource, StringDataSource, ByteDataSource, FloatData, LongData, IntData, StringData, ByteData
+from model.data_access_objects import Tumbleweed, TumbleBase, Run, Command, CommandType, SubSystem, DataSource, FloatData, LongData, IntData, StringData, ByteData, ImageData
 from util.utils import internal_server_error_message, get_config_parser
-from repositories.repositories import TumbleweedRepository, TumbleBaseRepository, RunRepository, CommandRepository, CommandTypeRepository, SubSystemRepository, LongDataSourceRepository, IntDataSourceRepository, FloatDataSourceRepository, StringDataSourceRepository, ByteDataSourceRepository, LongDataRepository, IntDataRepository, FloatDataRepository, StringDataRepository, ByteDataRepository
+from repositories.repositories import TumbleweedRepository, TumbleBaseRepository, RunRepository, CommandRepository, CommandTypeRepository, SubSystemRepository, DataSourceRepository, LongDataRepository, IntDataRepository, FloatDataRepository, StringDataRepository, ByteDataRepository, ImageDataRepository
 from exception.custom_exceptions import TumbleWebException, InternalServerError
-from model.data_transfer_objects import Tumbleweed as TumbleweedDTO, TumbleBase as TumbleBaseDTO, Run as RunDTO, Command as CommandDTO, CommandType as CommandTypeDTO, SubSystem as SubSystemDTO, DataSource as DataSourceDTO, LongData as LongDataDTO, IntData as IntDataDTO, FloatData as FloatDataDTO, StringData as StringDataDTO, ByteData as ByteDataDTO
+from model.data_transfer_objects import Tumbleweed as TumbleweedDTO, TumbleBase as TumbleBaseDTO, Run as RunDTO, Command as CommandDTO, CommandType as CommandTypeDTO, SubSystem as SubSystemDTO, DataSource as DataSourceDTO, LongData as LongDataDTO, IntData as IntDataDTO, FloatData as FloatDataDTO, StringData as StringDataDTO, ByteData as ByteDataDTO, ImageData as ImageDataDTO
 from database.database import DatabaseConnector
 from logger.logger import LoggerFactory
 from abc import abstractmethod
@@ -60,16 +60,13 @@ class TumbleWebLogic(BusinessLogic):
         self._command_repository = None
         self._commandType_repository = None
         self._subSystem_repository = None
-        self._longDataSource_repository = None
-        self._intDataSource_repository = None 
-        self._floatDataSource_repository = None
-        self._stringDataSource_repository = None
-        self._byteDataSource_repository = None
+        self._dataSource_repository = None
         self._longData_repository = None
         self._intData_repository = None
         self._floatData_repository = None
         self._stringData_repository = None
         self._byteData_repository = None
+        self._imageData_repository = None
         self._secret_key = None
 
     @property
@@ -109,34 +106,10 @@ class TumbleWebLogic(BusinessLogic):
         return self._subSystem_repository
 
     @property
-    def longDataSource_repository(self):
-        if self._longDataSource_repository is None:
-            self._longDataSource_repository = LongDataSourceRepository.get_repository(self._mode)
-        return self._longDataSource_repository
-
-    @property
-    def intDataSource_repository(self):
-        if self._intDataSource_repository is None:
-            self._intDataSource_repository = IntDataSourceRepository.get_repository(self._mode)
-        return self._intDataSource_repository
-
-    @property
-    def floatDataSource_repository(self):
-        if self._floatDataSource_repository is None:
-            self._floatDataSource_repository = FloatDataSourceRepository.get_repository(self._mode)
-        return self._floatDataSource_repository
-
-    @property
-    def stringDataSource_repository(self):
-        if self._stringDataSource_repository is None:
-            self._stringDataSource_repository = StringDataSourceRepository.get_repository(self._mode)
-        return self._stringDataSource_repository
-
-    @property
-    def byteDataSource_repository(self):
-        if self._byteDataSource_repository is None:
-            self._byteDataSource_repository = ByteDataSourceRepository.get_repository(self._mode)
-        return self._byteDataSource_repository
+    def dataSource_repository(self):
+        if self._dataSource_repository is None:
+            self._dataSource_repository = DataSourceRepository.get_repository(self._mode)
+        return self._dataSource_repository
 
     @property
     def longData_repository(self):
@@ -169,6 +142,12 @@ class TumbleWebLogic(BusinessLogic):
         return self._byteData_repository
 
     @property
+    def imageData_repository(self):
+        if self._imageData_repository is None:
+            self._imageData_repository = ImageDataRepository.get_repository(self._mode)
+        return self._imageData_repository
+
+    @property
     def secret_key(self):
         if self._secret_key is None:
             environment_parser = get_config_parser("environment.ini")
@@ -192,6 +171,41 @@ class TumbleWebLogic(BusinessLogic):
         tumbleweed_dao = Tumbleweed.create_from_dto(tumbleweed_dto)
         tumbleweed_id = self.tumbleweed_repository.save_entity(tumbleweed_dao, session)
         return tumbleweed_id
+
+    @execute_in_session
+    def save_tumblebase(self, tumblebase_dto, session=None):
+        tumblebase_dao = TumbleBase.create_from_dto(tumblebase_dto)
+        tumblebase_id = self.tumbleBase_repository.save_entity(tumblebase_dao, session)
+        return tumblebase_id
+
+    @execute_in_session
+    def save_subSystem(self, subSystem_dto, session=None):
+        subSystem_dao = SubSystem.create_from_dto(subSystem_dto)
+        subSystem_id = self.subSystem_repository.save_entity(subSystem_dao, session)
+        return subSystem_id
+
+    @execute_in_session
+    def save_dataSource(self, dataSource_dto, session=None):
+        dataSource_dao = DataSource.create_from_dto(dataSource_dto)
+        dataSource_id = self.dataSource_repository.save_entity(dataSource_dao, session)
+        return dataSource_id
+
+    @execute_in_session
+    def save_commandType(self, commandType_dto, session=None):
+        commandType_dao = CommandType.create_from_dto(commandType_dto)
+        commandType_id = self.commandType_repository.save_entity(commandType_dao, session)
+        return commandType_id
+
+    @execute_in_session
+    def add_subSystem_to_tumbleweed(self, subSystem_id, tumbleweed_id, session=None):
+        subSystem_dao = self.subSystem_repository.get_entity(subSystem_id, session)
+        tumbleweed_dao = self.tumbleweed_repository.get_entity(tumbleweed_id, session)
+        if subSystem_dao is not None and tumbleweed_dao is not None:
+            tumbleweed_dao.subsystems.append(subSystem_dao)
+            tumbleweed_id = self.tumbleweed_repository.save_entity(tumbleweed_dao, session)
+            return tumbleweed_id
+        else:
+            return None
 
     @execute_in_session
     def get_tumbleweeds(self, session=None):

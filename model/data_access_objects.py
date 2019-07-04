@@ -1,7 +1,11 @@
 from sqlalchemy import Column, ForeignKey, Table, Integer, String, Enum, DateTime, Boolean, UniqueConstraint, BigInteger, Float, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
+from util.utils import get_config_parser
 from sqlalchemy.orm import relationship
 from sqlalchemy import func
+from model.enums import DType, ImageFormat
+import uuid
+
 
 Base = declarative_base()
 
@@ -79,6 +83,11 @@ tumblebase_bytedata = Table('tumblebase_bytedata', Base.metadata,
     Column('bytedata_id', Integer, ForeignKey('bytedata.id'))
 )
 
+tumblebase_imagedata = Table('tumblebase_imagedata', Base.metadata,
+    Column('tumblebase_id', Integer, ForeignKey('tumblebase.id')),
+    Column('imagedata_id', Integer, ForeignKey('imagedata.id'))
+)
+
 tumblebase_command = Table('tumblebase_command', Base.metadata,
     Column('tumblebase_id', Integer, ForeignKey('tumblebase.id')),
     Column('command_id', Integer, ForeignKey('command.id'))
@@ -119,6 +128,7 @@ class TumbleBase(BaseWithConverter):
     long_data_points = relationship("LongData", uselist=True, secondary=tumblebase_longdata, back_populates="tumblebases")
     string_data_points = relationship("StringData", uselist=True, secondary=tumblebase_stringdata, back_populates="tumblebases")
     byte_data_points = relationship("ByteData", uselist=True, secondary=tumblebase_bytedata, back_populates="tumblebases")
+    image_data_points = relationship("ImageData", uselist=True, secondary=tumblebase_imagedata, back_populates="tumblebases")
     sent_commands = relationship("Command", uselist=True, back_populates="sender_base")
     received_commands = relationship("Command", uselist=True, secondary=tumblebase_command, back_populates="received_from_bases")
 
@@ -149,6 +159,7 @@ class Run(BaseWithConverter):
     float_data_points = relationship("FloatData", uselist=True, back_populates="run")
     byte_data_points = relationship("ByteData", uselist=True, back_populates="run")
     string_data_points = relationship("StringData", uselist=True, back_populates="run")
+    image_data_points = relationship("ImageData", uselist=True, back_populates="run")
 
     # fields
     created_at = Column(DateTime(timezone=True), nullable=False)
@@ -168,11 +179,8 @@ class SubSystem(BaseWithConverter):
 
     # relationships
     tumbleweed = relationship("Tumbleweed", uselist=False, back_populates="subsystems")
-    int_data_sources = relationship("IntDataSource", uselist=True, back_populates="subsystem")
-    float_data_sources = relationship("FloatDataSource", uselist=True, back_populates="subsystem")
-    long_data_sources = relationship("LongDataSource", uselist=True, back_populates="subsystem")
-    string_data_sources = relationship("StringDataSource", uselist=True, back_populates="subsystem")
-    byte_data_sources = relationship("ByteDataSource", uselist=True, back_populates="subsystem")
+    data_sources = relationship("DataSource", uselist=True, back_populates="subsystem")
+
 
     # fields
     created_at = Column(DateTime(timezone=True), nullable=False)
@@ -225,8 +233,8 @@ class Command(BaseWithConverter):
     response_message_id = Column(Integer)
 
 
-class IntDataSource(BaseWithConverter):
-    __tablename__ = "intdatasource"
+class DataSource(BaseWithConverter):
+    __tablename__ = "datasource"
 
     # primary key
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -235,101 +243,18 @@ class IntDataSource(BaseWithConverter):
     subsystem_id = Column(Integer, ForeignKey("subsystem.id"))
 
     # relationships
-    subsystem = relationship("SubSystem", uselist=False, back_populates="int_data_sources")
-    data_points = relationship("IntData", uselist=True, back_populates="data_source")
+    subsystem = relationship("SubSystem", uselist=False, back_populates="data_sources")
+    long_data_points = relationship("LongData", uselist=True, back_populates="data_source")
+    int_data_points = relationship("IntData", uselist=True, back_populates="data_source")
+    float_data_points = relationship("FloatData", uselist=True, back_populates="data_source")
+    byte_data_points = relationship("ByteData", uselist=True, back_populates="data_source")
+    string_data_points = relationship("StringData", uselist=True, back_populates="data_source")
+    image_data_points = relationship("ImageData", uselist=True, back_populates="data_source")
 
     # fields
     created_at = Column(DateTime(timezone=True), nullable=False)
     short_key = Column(String, nullable=False)
-    dtype = Column(String, nullable=False)
-    name = Column(String, nullable=False)
-    type = Column(String)
-    description = Column(String)
-
-
-class LongDataSource(BaseWithConverter):
-    __tablename__ = "longdatasource"
-
-    # primary key
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-    # foreign keys
-    subsystem_id = Column(Integer, ForeignKey("subsystem.id"))
-
-    # relationships
-    subsystem = relationship("SubSystem", uselist=False, back_populates="long_data_sources")
-    data_points = relationship("LongData", uselist=True, back_populates="data_source")
-
-    # fields
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    short_key = Column(String, nullable=False)
-    dtype = Column(String, nullable=False)
-    name = Column(String, nullable=False)
-    type = Column(String)
-    description = Column(String)
-
-
-class FloatDataSource(BaseWithConverter):
-    __tablename__ = "floatdatasource"
-
-    # primary key
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-    # foreign keys
-    subsystem_id = Column(Integer, ForeignKey("subsystem.id"))
-
-    # relationships
-    subsystem = relationship("SubSystem", uselist=False, back_populates="float_data_sources")
-    data_points = relationship("FloatData", uselist=True, back_populates="data_source")
-
-    # fields
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    short_key = Column(String, nullable=False)
-    dtype = Column(String, nullable=False)
-    name = Column(String, nullable=False)
-    type = Column(String)
-    description = Column(String)
-
-
-class StringDataSource(BaseWithConverter):
-    __tablename__ = "stringdatasource"
-
-    # primary key
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-    # foreign keys
-    subsystem_id = Column(Integer, ForeignKey("subsystem.id"))
-
-    # relationships
-    subsystem = relationship("SubSystem", uselist=False, back_populates="string_data_sources")
-    data_points = relationship("StringData", uselist=True, back_populates="data_source")
-
-    # fields
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    short_key = Column(String, nullable=False)
-    dtype = Column(String, nullable=False)
-    name = Column(String, nullable=False)
-    type = Column(String)
-    description = Column(String)
-
-
-class ByteDataSource(BaseWithConverter):
-    __tablename__ = "bytedatasource"
-
-    # primary key
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-    # foreign keys
-    subsystem_id = Column(Integer, ForeignKey("subsystem.id"))
-
-    # relationships
-    subsystem = relationship("SubSystem", uselist=False, back_populates="byte_data_sources")
-    data_points = relationship("ByteData", uselist=True, back_populates="data_source")
-
-    # fields
-    created_at = Column(DateTime(timezone=True), nullable=False)
-    short_key = Column(String, nullable=False)
-    dtype = Column(String, nullable=False)
+    dtype = Column(Enum(DType), nullable=False)
     name = Column(String, nullable=False)
     type = Column(String)
     description = Column(String)
@@ -342,12 +267,12 @@ class LongData(DataPoint):
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     # foreign keys
-    data_source_id = Column(Integer, ForeignKey("longdatasource.id"))
+    data_source_id = Column(Integer, ForeignKey("datasource.id"))
     run_id = Column(Integer, ForeignKey("run.id"))
 
     # relationships
     tumblebases = relationship("TumbleBase", uselist=True, secondary=tumblebase_longdata, back_populates="long_data_points")
-    data_source = relationship("LongDataSource", uselist=False, back_populates="data_points")
+    data_source = relationship("DataSource", uselist=False, back_populates="long_data_points")
     run = relationship("Run", uselist=False, back_populates="long_data_points")
 
     # fields
@@ -368,12 +293,12 @@ class IntData(DataPoint):
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     # foreign keys
-    data_source_id = Column(Integer, ForeignKey("intdatasource.id"))
+    data_source_id = Column(Integer, ForeignKey("datasource.id"))
     run_id = Column(Integer, ForeignKey("run.id"))
 
     # relationships
     tumblebases = relationship("TumbleBase", uselist=True, secondary=tumblebase_intdata, back_populates="int_data_points")
-    data_source = relationship("IntDataSource", uselist=False, back_populates="data_points")
+    data_source = relationship("DataSource", uselist=False, back_populates="int_data_points")
     run = relationship("Run", uselist=False, back_populates="int_data_points")
 
     # fields
@@ -393,12 +318,12 @@ class FloatData(DataPoint):
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     # foreign keys
-    data_source_id = Column(Integer, ForeignKey("floatdatasource.id"))
+    data_source_id = Column(Integer, ForeignKey("datasource.id"))
     run_id = Column(Integer, ForeignKey("run.id"))
 
     # relationships
     tumblebases = relationship("TumbleBase", uselist=True, secondary=tumblebase_floatdata, back_populates="float_data_points")
-    data_source = relationship("FloatDataSource", uselist=False, back_populates="data_points")
+    data_source = relationship("DataSource", uselist=False, back_populates="float_data_points")
     run = relationship("Run", uselist=False, back_populates="float_data_points")
 
     # fields
@@ -418,12 +343,12 @@ class StringData(DataPoint):
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     # foreign keys
-    data_source_id = Column(Integer, ForeignKey("stringdatasource.id"))
+    data_source_id = Column(Integer, ForeignKey("datasource.id"))
     run_id = Column(Integer, ForeignKey("run.id"))
 
     # relationships
     tumblebases = relationship("TumbleBase", uselist=True, secondary=tumblebase_stringdata, back_populates="string_data_points")
-    data_source = relationship("StringDataSource", uselist=False, back_populates="data_points")
+    data_source = relationship("DataSource", uselist=False, back_populates="string_data_points")
     run = relationship("Run", uselist=False, back_populates="string_data_points")
 
     # fields
@@ -443,12 +368,12 @@ class ByteData(DataPoint):
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     # foreign keys
-    data_source_id = Column(Integer, ForeignKey("bytedatasource.id"))
+    data_source_id = Column(Integer, ForeignKey("datasource.id"))
     run_id = Column(Integer, ForeignKey("run.id"))
 
     # relationships
     tumblebases = relationship("TumbleBase", uselist=True, secondary=tumblebase_bytedata, back_populates="byte_data_points")
-    data_source = relationship("ByteDataSource", uselist=False, back_populates="data_points")
+    data_source = relationship("DataSource", uselist=False, back_populates="byte_data_points")
     run = relationship("Run", uselist=False, back_populates="byte_data_points")
 
     # fields
@@ -459,5 +384,57 @@ class ByteData(DataPoint):
     packets_received = Column(Integer, nullable=False)
     message_id = Column(Integer, nullable=False)
     size = Column(Integer)
+
+
+class ImageData(DataPoint):
+    __tablename__ = "imagedata"
+
+    #primary key
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # foreign keys
+    data_source_id = Column(Integer, ForeignKey("datasource.id"))
+    run_id = Column(Integer, ForeignKey("run.id"))
+
+    # relationships
+    tumblebases = relationship("TumbleBase", uselist=True, secondary=tumblebase_imagedata, back_populates="image_data_points")
+    data_source = relationship("DataSource", uselist=False, back_populates="image_data_points")
+    run = relationship("Run", uselist=False, back_populates="image_data_points")
+
+    # fields
+    receiving_start = Column(DateTime(timezone=True), nullable=False)
+    receiving_done = Column(DateTime(timezone=True))
+    data = Column(String)
+    image_format = Column(Enum(ImageFormat))
+    packets = Column(Integer, nullable=False)
+    packets_received = Column(Integer, nullable=False)
+    message_id = Column(Integer, nullable=False)
+    size = Column(Integer)
+
+    def __init__(self):
+        super().__init__()
+        self._image_bytes = None
+
+    @property
+    def image_bytes(self):
+        if self.data is not None and self._image_bytes is None:
+            self._image_bytes = (open(self.data, "rb")).read()
+        return self._image_bytes
+
+    @image_bytes.setter
+    def image_bytes(self, value):
+        if isinstance(value, bytes) and self.image_format is not None:
+            config_parser = get_config_parser("environment.ini")
+            path = config_parser["paths"]["images"]
+            name = str(uuid.uuid1())
+            full_path = f"{path}{name}.{self.image_format}"
+            with open(full_path, "wb") as f:
+                f.write(value)
+            self.data = full_path
+            self._image_bytes = value 
+        else:
+            raise TypeError("Trying to set image_bytes to an invalid value")
+
+
 
 
