@@ -1,5 +1,5 @@
 from model.data_transfer_objects import Tumbleweed, TumbleBase, Run, SubSystem, DataSource, IntData, LongData, FloatData, StringData, ByteData, Command, CommandType, ImageData
-from marshmallow import Schema, fields, post_load, post_dump, pre_dump
+from marshmallow import Schema, fields, post_load, post_dump, pre_dump, pre_load
 from marshmallow_enum import EnumField
 from datetime import datetime
 from model.enums import DType, ImageFormat
@@ -24,10 +24,10 @@ class TumbleBaseSchema(Schema):
 
     id = fields.Int(dump_only=True)
 
-    address = fields.String(allow_none = True, required=True)
-    name = fields.String(allow_none=True, required=True)
+    address = fields.String(allow_none=True, required=True)
+    name = fields.String(allow_none=False, required=True)
     created_at = fields.DateTime(dump_only=True)
-    host = fields.String(allow_none=True, required=True)
+    host = fields.String(allow_none=False, required=True)
     port = fields.Int(allow_none=True, required=True)
     command_route = fields.String(allow_none=True, required=True)
 
@@ -75,7 +75,6 @@ class CommandTypeSchema(Schema):
     created_at = fields.DateTime(dump_only=True)
     type = fields.String(allow_none=False, required=True)
     description = fields.String(allow_none=True, required=True)
-    tumbleweed_id = fields.Int(dump_only=True)
 
     @post_load
     def init_model(self, data):
@@ -92,7 +91,7 @@ class CommandSchema(Schema):
     sender_base_id = fields.Int(dump_only=True)
     command_type_id = fields.Int(dump_only=True)
     args = fields.String(allow_none=True, required=True)
-    transmitted = fields.Bool(allow_none=False, required=True)
+    transmitted = fields.Bool(dump_only=True)
     response = fields.String(allow_none=True, required=True)
     received_response_at = fields.DateTime(allow_none=True, required=True)
     response_message_id = fields.Int(allow_none=True, required=True)
@@ -113,7 +112,7 @@ class DataSourceSchema(Schema):
     subsystem_id = fields.Int(dump_only=True, required=True)
     short_key = fields.String(allow_none=False, required=True)
     dtype = EnumField(DType, by_value=True, allow_none=False, required=True)
-    type: fields.String(allow_none=True, required=True)
+    type = fields.String(allow_none=True, required=True)
 
     @post_load
     def init_model(self, data):
@@ -128,7 +127,7 @@ class LongDataSchema(Schema):
     data_source_id = fields.Int(dump_only=True)
     run_id = fields.Int(dump_only=True)
     receiving_start = fields.DateTime(allow_none=False, required=True)
-    receiving_done = fields.DateTime(dump_only=True)
+    receiving_done = fields.DateTime(allow_none=True, required=True)
     data = fields.Int(allow_none=True, required=True)
     packets = fields.Int(allow_none=False, required=True)
     packets_received = fields.Int(allow_none=False, required=True)
@@ -230,8 +229,8 @@ class ByteDataSchema(Schema):
     @pre_dump
     def convert_to_str(self, data):
         if data["data"] is not None:
-            to_string = data["data"].decode()
-            to_string = base64.b64encode(to_string)
+            to_string = base64.b64encode(data["data"])
+            to_string = to_string.decode()
             data["data"] = to_string
         return data
 
@@ -244,9 +243,7 @@ class ImageDataSchema(Schema):
     run_id = fields.Int(dump_only=True)
     receiving_start = fields.DateTime(allow_none=False, required=True)
     receiving_done = fields.DateTime(allow_none=True, required=True)
-    data = fields.String(dump_only=True)
-    image_bytes = fields.String(load_only=True, allow_none=True, required=True)
-    image_format = EnumField(ImageFormat, by_value=True, allow_none=True, required=True)
+    data = fields.String(allow_none=True, required=True)
     packets = fields.Int(allow_none=False, required=True)
     packets_received = fields.Int(allow_none=False, required=True)
     message_id = fields.Int(allow_none=False, required=True)
@@ -255,8 +252,8 @@ class ImageDataSchema(Schema):
     @post_load
     def convert_base_64(self, data):
         """we cannot send bytestrings via http post requests, so we must convert to a base 64 string and back"""
-        if data["image_bytes"] is not None:
-            to_bytes = data["image_bytes"].encode()
+        if data["data"] is not None:
+            to_bytes = data["data"].encode()
             to_bytes = base64.b64decode(to_bytes)
-            data["image_bytes"] = to_bytes
+            data["data"] = to_bytes
         return ImageData(**data)

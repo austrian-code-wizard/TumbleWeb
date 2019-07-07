@@ -64,6 +64,9 @@ class TumbleweedRepository(Repository):
     def delete_entity(self, entity_id, session):
         raise NotImplementedError("Not available!")
 
+    def get_by_address(self, address, session):
+        return session.query(self.entity_model).filter(self.entity_model.address == address).first()
+
 
 class TumbleBaseRepository(Repository):
     """
@@ -75,6 +78,9 @@ class TumbleBaseRepository(Repository):
 
     def delete_entity(self, entity_id, session):
         raise NotImplementedError("Not available!")
+
+    def get_by_address(self, address, session):
+        return session.query(self.entity_model).filter(self.entity_model.address == address).first()
 
 
 class RunRepository(Repository):
@@ -135,6 +141,13 @@ class DataSourceRepository(Repository):
 
     def delete_entity(self, entity_id, session):
         raise NotImplementedError("Not available!")
+
+    def get_dataSources_by_tumbleweed_id(self, tumbleweed_id, session=None):
+        return session.query(self.entity_model).filter(self.entity_model.tumbleweed_id == tumbleweed_id).all()
+
+    def get_dataSource_by_tumbleweed_address_and_short_key(self, tumbleweed_id, short_key, session):
+        return session.query(self.entity_model).filter(self.entity_model.tumbleweed_id == tumbleweed_id).filter(
+            self.entity_model.short_key == short_key).first()
 
 
 class LongDataRepository(Repository):

@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from util.utils import get_config_parser
 from sqlalchemy.orm import relationship
 from sqlalchemy import func
+import fleep
 import os
 from model.enums import DType, ImageFormat
 import uuid
@@ -98,6 +99,7 @@ tumblebase_command = Table('tumblebase_command', Base.metadata,
 
 # Model classes
 
+
 class Tumbleweed(BaseWithConverter):
     __tablename__ = "tumbleweed"
     
@@ -106,9 +108,10 @@ class Tumbleweed(BaseWithConverter):
 
     # relationships
     tumblebases = relationship("TumbleBase", uselist=True, secondary=tumbleweed_tumblebase, back_populates="tumbleweeds")
-    command_types = relationship("CommandType", uselist=True, back_populates="tumbleweed")
     subsystems = relationship("SubSystem", uselist=True, back_populates="tumbleweed")
+    data_sources = relationship("DataSource", uselist=True, back_populates="tumbleweed")
     runs = relationship("Run", uselist=True, back_populates="tumbleweed")
+    commands = relationship("Command", uselist=True, back_populates="tumbleweed")
 
     # fields
     address = Column(String, nullable=False)
@@ -135,12 +138,11 @@ class TumbleBase(BaseWithConverter):
 
     # fields
     created_at = Column(DateTime(timezone=True), nullable=False)
-    address = Column(String)
-    name = Column(String)
-    host = Column(String)
-    port = Column(Integer)
-    command_route = Column(String)
-
+    address = Column(String, unique=True)
+    name = Column(String, nullable=False)
+    host = Column(String, nullable=False)
+    port = Column(Integer, nullable=True)
+    command_route = Column(String, nullable=True)
 
 
 class Run(BaseWithConverter):
@@ -195,11 +197,7 @@ class CommandType(BaseWithConverter):
     # primary key
     id = Column(Integer, primary_key=True, autoincrement=True)
 
-    # foreign keys
-    tumbleweed_id = Column(Integer, ForeignKey('tumbleweed.id'))
-
     # relationships
-    tumbleweed = relationship("Tumbleweed", uselist=False, back_populates="command_types")
     commands = relationship("Command", uselist=True, back_populates="command_type")
 
     # fields
@@ -217,6 +215,7 @@ class Command(BaseWithConverter):
     # foreign key
     command_type_id = Column(Integer, ForeignKey("commandtype.id"))
     sender_base_id = Column(Integer, ForeignKey("tumblebase.id"))
+    tumbleweed_id = Column(Integer, ForeignKey("tumbleweed.id"))
     run_id = Column(Integer, ForeignKey("run.id"))
 
     # relationships
@@ -224,11 +223,12 @@ class Command(BaseWithConverter):
     sender_base = relationship("TumbleBase", uselist=False, back_populates="sent_commands")
     received_from_bases = relationship("TumbleBase", uselist=True, secondary=tumblebase_command, back_populates="received_commands")
     run = relationship("Run", uselist=False, back_populates="commands")
+    tumbleweed = relationship("Tumbleweed", uselist=False, back_populates="commands")
 
     # fields
     created_at = Column(DateTime(timezone=True), nullable=False)
     args = Column(String)
-    transmitted = Column(Boolean, nullable=False)
+    transmitted = Column(Boolean, nullable=False, default=False)
     response = Column(String)
     received_response_at = Column(DateTime(timezone=True))
     response_message_id = Column(Integer)
@@ -242,9 +242,11 @@ class DataSource(BaseWithConverter):
 
     # foreign keys
     subsystem_id = Column(Integer, ForeignKey("subsystem.id"))
+    tumbleweed_id = Column(Integer, ForeignKey("tumbleweed.id"))
 
     # relationships
     subsystem = relationship("SubSystem", uselist=False, back_populates="data_sources")
+    tumbleweed = relationship("Tumbleweed", uselist=False, back_populates="data_sources")
     long_data_points = relationship("LongData", uselist=True, back_populates="data_source")
     int_data_points = relationship("IntData", uselist=True, back_populates="data_source")
     float_data_points = relationship("FloatData", uselist=True, back_populates="data_source")
@@ -261,8 +263,7 @@ class DataSource(BaseWithConverter):
     description = Column(String)
 
     # args
-    __table_args__ = (UniqueConstraint('short_key', 'subsystem.tumbleweed_id', name='_customer_location_uc'),
-                     )
+    __table_args__ = (UniqueConstraint('short_key', 'tumbleweed_id', name='_short_key_tumbleweed_id_uc'),)
 
 
 class LongData(DataPoint):
@@ -288,7 +289,6 @@ class LongData(DataPoint):
     packets_received = Column(Integer, nullable=False)
     message_id = Column(Integer, nullable=False)
     size = Column(Integer)
-
 
 
 class IntData(DataPoint):
@@ -410,7 +410,6 @@ class ImageData(DataPoint):
     receiving_start = Column(DateTime(timezone=True), nullable=False)
     receiving_done = Column(DateTime(timezone=True))
     data = Column(String)
-    image_format = Column(Enum(ImageFormat))
     packets = Column(Integer, nullable=False)
     packets_received = Column(Integer, nullable=False)
     message_id = Column(Integer, nullable=False)
@@ -418,29 +417,32 @@ class ImageData(DataPoint):
 
     def __init__(self):
         super().__init__()
-        self._image_bytes = None
+        self.data = None
 
     @property
-    def image_bytes(self):
-        if self.data is not None and self._image_bytes is None:
-            self._image_bytes = (open(self.data, "rb")).read()
-        return self._image_bytes
+    def data(self):
+        if self._data is not None:
+            return (open(self._data, "rb")).read()
+        else:
+            return None
 
-    @image_bytes.setter
-    def image_bytes(self, value):
-        if isinstance(value, bytes) and self.image_format is not None:
+    @data.setter
+    def data(self, value):
+        if isinstance(value, bytes):
             config_parser = get_config_parser("environment.ini")
             path = config_parser["paths"]["images"]
             if not os.path.exists(path):
                 os.mkdir(path)
             name = str(uuid.uuid1())
-            full_path = f"{path}{name}.{self.image_format}"
+            format = fleep.get(value).extension[0]
+            full_path = f"{path}{name}.{format}"
             with open(full_path, "wb+") as f:
                 f.write(value)
-            self.data = full_path
-            self._image_bytes = value 
+            self._data = full_path
+        elif value is None:
+            self._data = None
         else:
-            raise TypeError("Trying to set image_bytes to an invalid value")
+            raise TypeError("Must provide bytes as data")
 
 
 

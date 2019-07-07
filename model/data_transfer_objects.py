@@ -85,7 +85,6 @@ class SubSystem(BaseClass):
 class CommandType(BaseClass):
 
     # attributes
-    tumbleweed_id: int = None
     created_at: datetime = None
     type: str = None
     description: str = None
