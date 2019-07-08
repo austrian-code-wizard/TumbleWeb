@@ -30,7 +30,7 @@ tumblebase_json = {
             "address": "123456789123457",
             "name": "Tumblebase1",
             "host": "0.0.0.0",
-            "port": "8002",
+            "port": 8002,
             "command_route": "/send-command"
         }
 run_json = {

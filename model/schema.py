@@ -10,7 +10,7 @@ class TumbleweedSchema(Schema):
 
     id = fields.Int(dump_only=True)
 
-    address = fields.String(allow_none = False, required=True)
+    address = fields.String(allow_none=False, required=True)
     name = fields.String(allow_none=True, required=True)
     created_at = fields.DateTime(dump_only=True)
 
