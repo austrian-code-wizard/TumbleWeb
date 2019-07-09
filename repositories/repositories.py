@@ -67,16 +67,46 @@ class TumbleweedRepository(Repository):
             return None
         for run in tumbleweed.runs:
             for datapoint in run.long_data_points:
+                datapoint.run = None
+                datapoint.run_id = None
+                datapoint.data_source = None
+                datapoint.data_source_id = None
+                datapoint.tumblebases = []
                 session.delete(datapoint)
             for datapoint in run.int_data_points:
+                datapoint.run = None
+                datapoint.run_id = None
+                datapoint.data_source = None
+                datapoint.data_source_id = None
+                datapoint.tumblebases = []
                 session.delete(datapoint)
             for datapoint in run.float_data_points:
+                datapoint.run = None
+                datapoint.run_id = None
+                datapoint.data_source = None
+                datapoint.data_source_id = None
+                datapoint.tumblebases = []
                 session.delete(datapoint)
             for datapoint in run.string_data_points:
+                datapoint.run = None
+                datapoint.run_id = None
+                datapoint.data_source = None
+                datapoint.data_source_id = None
+                datapoint.tumblebases = []
                 session.delete(datapoint)
             for datapoint in run.byte_data_points:
+                datapoint.run = None
+                datapoint.run_id = None
+                datapoint.data_source = None
+                datapoint.data_source_id = None
+                datapoint.tumblebases = []
                 session.delete(datapoint)
             for datapoint in run.image_data_points:
+                datapoint.run = None
+                datapoint.run_id = None
+                datapoint.data_source = None
+                datapoint.data_source_id = None
+                datapoint.tumblebases = []
                 session.delete(datapoint)
             for command in run.commands:
                 command.tumbleweed = None
@@ -122,7 +152,15 @@ class TumbleBaseRepository(Repository):
         super().__init__(logger, TumbleBase)
 
     def delete_entity(self, entity_id, session):
-        raise NotImplementedError("Not available!")
+        tumblebase = session.query(self.entity_model).filter(self.entity_model.id == entity_id).first()
+        if len(tumblebase.long_data_points) > 0 or len(tumblebase.int_data_points) > 0 or len(
+                tumblebase.float_data_points) > 0 or len(tumblebase.string_data_points) > 0 or len(
+                tumblebase.byte_data_points) > 0 or len(tumblebase.image_data_points) > 0 or len(
+                tumblebase.sent_commands) > 0 or len(tumblebase.received_commands) > 0:
+            return None
+        tumblebase.tumbleweeds = []
+        session.delete(tumblebase)
+        return entity_id
 
     def get_by_address(self, address, session):
         return session.query(self.entity_model).filter(self.entity_model.address == address).first()
@@ -137,7 +175,66 @@ class RunRepository(Repository):
         super().__init__(logger, Run)
 
     def delete_entity(self, entity_id, session):
-        raise NotImplementedError("Not available!")
+        run = session.query(self.entity_model).filter(self.entity_model.id == entity_id).first()
+        if run is None:
+            return None
+        for datapoint in run.long_data_points:
+            datapoint.run = None
+            datapoint.run_id = None
+            datapoint.data_source = None
+            datapoint.data_source_id = None
+            datapoint.tumblebases = []
+            session.delete(datapoint)
+        for datapoint in run.int_data_points:
+            datapoint.run = None
+            datapoint.run_id = None
+            datapoint.data_source = None
+            datapoint.data_source_id = None
+            datapoint.tumblebases = []
+            session.delete(datapoint)
+        for datapoint in run.float_data_points:
+            datapoint.run = None
+            datapoint.run_id = None
+            datapoint.data_source = None
+            datapoint.data_source_id = None
+            datapoint.tumblebases = []
+            session.delete(datapoint)
+        for datapoint in run.string_data_points:
+            datapoint.run = None
+            datapoint.run_id = None
+            datapoint.data_source = None
+            datapoint.data_source_id = None
+            datapoint.tumblebases = []
+            session.delete(datapoint)
+        for datapoint in run.byte_data_points:
+            datapoint.run = None
+            datapoint.run_id = None
+            datapoint.data_source = None
+            datapoint.data_source_id = None
+            datapoint.tumblebases = []
+            session.delete(datapoint)
+        for datapoint in run.image_data_points:
+            datapoint.run = None
+            datapoint.run_id = None
+            datapoint.data_source = None
+            datapoint.data_source_id = None
+            datapoint.tumblebases = []
+            session.delete(datapoint)
+        for command in run.commands:
+            command.tumbleweed = None
+            command.tumbleweed_id = None
+            command.run_id = None
+            command.run = None
+            command.command_type_id = None
+            command.command_type = None
+            command.sender_base = None
+            command.sender_base_id = None
+            command.received_from_bases = []
+            session.delete(command)
+        run.tumbleweed = None
+        run.tumbleweed_id = None
+        session.delete(run)
+        return entity_id
 
 
 class SubSystemRepository(Repository):
@@ -171,7 +268,22 @@ class CommandTypeRepository(Repository):
         super().__init__(logger, CommandType)
 
     def delete_entity(self, entity_id, session):
-        raise NotImplementedError("Not available!")
+        commandType = session.query(self.entity_model).filter(self.entity_model.id == entity_id).first()
+        if commandType is None:
+            return None
+        for command in commandType.commands:
+            command.tumbleweed = None
+            command.tumbleweed_id = None
+            command.run_id = None
+            command.run = None
+            command.command_type_id = None
+            command.command_type = None
+            command.sender_base = None
+            command.sender_base_id = None
+            command.received_from_bases = []
+            session.delete(command)
+        session.delete(commandType)
+        return entity_id
 
 
 class CommandRepository(Repository):
@@ -207,25 +319,54 @@ class DataSourceRepository(Repository):
 
     def delete_entity(self, entity_id, session):
         dataSource = session.query(self.entity_model).filter(self.entity_model.id == entity_id).first()
-        for dataPoint in dataSource.long_data_points:
-            session.delete(dataPoint)
-        for dataPoint in dataSource.int_data_points:
-            session.delete(dataPoint)
-        for dataPoint in dataSource.float_data_points:
-            session.delete(dataPoint)
-        for dataPoint in dataSource.string_data_points:
-            session.delete(dataPoint)
-        for dataPoint in dataSource.byte_data_points:
-            session.delete(dataPoint)
-        for dataPoint in dataSource.image_data_points:
-            session.delete(dataPoint)
+        for datapoint in dataSource.long_data_points:
+            datapoint.run = None
+            datapoint.run_id = None
+            datapoint.data_source = None
+            datapoint.data_source_id = None
+            datapoint.tumblebases = []
+            session.delete(datapoint)
+        for datapoint in dataSource.int_data_points:
+            datapoint.run = None
+            datapoint.run_id = None
+            datapoint.data_source = None
+            datapoint.data_source_id = None
+            datapoint.tumblebases = []
+            session.delete(datapoint)
+        for datapoint in dataSource.float_data_points:
+            datapoint.run = None
+            datapoint.run_id = None
+            datapoint.data_source = None
+            datapoint.data_source_id = None
+            datapoint.tumblebases = []
+            session.delete(datapoint)
+        for datapoint in dataSource.string_data_points:
+            datapoint.run = None
+            datapoint.run_id = None
+            datapoint.data_source = None
+            datapoint.data_source_id = None
+            datapoint.tumblebases = []
+            session.delete(datapoint)
+        for datapoint in dataSource.byte_data_points:
+            datapoint.run = None
+            datapoint.run_id = None
+            datapoint.data_source = None
+            datapoint.data_source_id = None
+            datapoint.tumblebases = []
+            session.delete(datapoint)
+        for datapoint in dataSource.image_data_points:
+            datapoint.run = None
+            datapoint.run_id = None
+            datapoint.data_source = None
+            datapoint.data_source_id = None
+            datapoint.tumblebases = []
+            session.delete(datapoint)
         dataSource.subsystem_id = None
         dataSource.subsystem = None
         dataSource.tumbleweed_id = None
         dataSource.tumbleweed = None
         session.delete(dataSource)
         return entity_id
-
 
     def get_dataSources_by_tumbleweed_id(self, tumbleweed_id, session):
         return session.query(self.entity_model).filter(self.entity_model.tumbleweed_id == tumbleweed_id).all()

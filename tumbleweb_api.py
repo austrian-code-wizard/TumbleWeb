@@ -377,7 +377,7 @@ def get_commandType(commandType_id):
 @handle_exception
 def get_run(run_id):
     found_run = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_run(run_id)
-    if run_id is None:
+    if found_run is None:
         return jsonify({"info": f"No run with id {run_id} exists."}), 400
     else:
         result = app.config["TUMBLEWEB_RUN_SCHEMA"].dump(found_run)
@@ -498,6 +498,52 @@ def get_dataSource_by_short_key_and_tumbleweed_address(short_key, address):
     else:
         result = app.config["TUMBLEWEB_DATASOURCE_SCHEMA"].dump(found_dataSource)
         return jsonify(result)
+
+
+@app.route("/get-datapoint-by-dataSource-id-and-datapoint-id/<int:dataSource_id>/<int:datapoint_id>", methods=["GET"])
+@handle_exception
+def get_datapoint_by_dataSource_id_and_datapoint_id(dataSource_id, datapoint_id):
+    dataSource = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_dataSource(dataSource_id)
+    if dataSource is None:
+        return jsonify({"info": f"No Data Source with id {dataSource_id} exists."}), 400
+    if dataSource.dtype == DType.Long:
+        datapoint = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_longdatapoint(datapoint_id)
+        if datapoint is None:
+            return jsonify({"info": f"No Data Point with id {datapoint_id} exists for data source {dataSource_id}."}), 400
+        result = app.config["TUMBLEWEB_LONGDATA_SCHEMA"].dump(datapoint)
+        return jsonify(result)
+    elif dataSource.dtype == DType.Int:
+        datapoint = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_intdatapoint(datapoint_id)
+        if datapoint is None:
+            return jsonify({"info": f"No Data Point with id {datapoint_id} exists for data source {dataSource_id}."}), 400
+        result = app.config["TUMBlEWEB_INTDATA_SCHEMA"].dump(datapoint)
+        return jsonify(result)
+    elif dataSource.dtype == DType.Float:
+        datapoint = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_floatdatapoint(datapoint_id)
+        if datapoint is None:
+            return jsonify({"info": f"No Data Point with id {datapoint_id} exists for data source {dataSource_id}."}), 400
+        result = app.config["TUMBLEWEB_FLOATDATA_SCHEMA"].dump(datapoint)
+        return jsonify(result)
+    elif dataSource.dtype == DType.String:
+        datapoint = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_stringdatapoint(datapoint_id)
+        if datapoint is None:
+            return jsonify({"info": f"No Data Point with id {datapoint_id} exists for data source {dataSource_id}."}), 400
+        result = app.config["TUMBLEWEB_STRINGDATA_SCHEMA"].dump(datapoint)
+        return jsonify(result)
+    elif dataSource.dtype == DType.Byte:
+        datapoint = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_bytedatapoint(datapoint_id)
+        if datapoint is None:
+            return jsonify({"info": f"No Data Point with id {datapoint_id} exists for data source {dataSource_id}."}), 400
+        result = app.config["TUMBLEWEB_BYTEDATA_SCHEMA"].dump(datapoint)
+        return jsonify(result)
+    elif dataSource.dtype == DType.Image:
+        datapoint = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_imagedatapoint(datapoint_id)
+        if datapoint is None:
+            return jsonify({"info": f"No Data Point with id {datapoint_id} exists for data source {dataSource_id}."}), 400
+        result = app.config["TUMBLEWEB_IMAGEDATA_SCHEMA"].dump(datapoint)
+        return jsonify(result)
+    else:
+        return jsonify({"info": f"Data source {dataSource_id} has an invalid dtype."}), 400
 
 
 @app.route("/get-datapoints-by-dataSource-and-run/<int:dataSource_id>/<int:run_id>", methods=["GET"])
@@ -668,6 +714,58 @@ def update_command(command_id):
     command_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].update_command(command_id, command_to_update)
     return jsonify({"info": command_id})
 
+
+@app.route("/update-datapoint/<string:dtype>/<int:datapoint_id>", methods=["PATCH"])
+@handle_exception
+def update_datapoint(dtype, datapoint_id):
+    datapoint_json = request.get_json()
+    if dtype == DType.Long.value:
+        datapoint_to_update = app.config["TUMBLEWEB_LONGDATA_SCHEMA"].load(datapoint_json)
+        datapoint = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_longdatapoint(datapoint_id)
+        if datapoint is None:
+            return jsonify({"info": f"No long datapoint with ID {datapoint_id} was found."}), 400
+        datapoint_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].update_longdatapoint(datapoint_id, datapoint_to_update)
+        return jsonify({"info": datapoint_id})
+    elif dtype == DType.Int.value:
+        datapoint_to_update = app.config["TUMBlEWEB_INTDATA_SCHEMA"].load(datapoint_json)
+        datapoint = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_intdatapoint(datapoint_id)
+        if datapoint is None:
+            return jsonify({"info": f"No int datapoint with ID {datapoint_id} was found."}), 400
+        datapoint_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].update_intdatapoint(datapoint_id, datapoint_to_update)
+        return jsonify({"info": datapoint_id})
+    elif dtype == DType.Float.value:
+        datapoint_to_update = app.config["TUMBLEWEB_FLOATDATA_SCHEMA"].load(datapoint_json)
+        datapoint = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_floatdatapoint(datapoint_id)
+        if datapoint is None:
+            return jsonify({"info": f"No float datapoint with ID {datapoint_id} was found."}), 400
+        datapoint_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].update_floatdatapoint(datapoint_id, datapoint_to_update)
+        return jsonify({"info": datapoint_id})
+    elif dtype == DType.String.value:
+        datapoint_to_update = app.config["TUMBLEWEB_STRINGDATA_SCHEMA"].load(datapoint_json)
+        datapoint = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_stringdatapoint(datapoint_id)
+        if datapoint is None:
+            return jsonify({"info": f"No string datapoint with ID {datapoint_id} was found."}), 400
+        datapoint_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].update_stringdatapoint(datapoint_id, datapoint_to_update)
+        return jsonify({"info": datapoint_id})
+    elif dtype == DType.Byte.value:
+        datapoint_to_update = app.config["TUMBLEWEB_BYTEDATA_SCHEMA"].load(datapoint_json)
+        datapoint = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_bytedatapoint(datapoint_id)
+        if datapoint is None:
+            return jsonify({"info": f"No byte datapoint with ID {datapoint_id} was found."}), 400
+        datapoint_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].update_bytedatapoint(datapoint_id, datapoint_to_update)
+        return jsonify({"info": datapoint_id})
+    elif dtype == DType.Image.value:
+        datapoint_to_update = app.config["TUMBLEWEB_IMAGEDATA_SCHEMA"].load(datapoint_json)
+        datapoint = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_imagedatapoint(datapoint_id)
+        if datapoint is None:
+            return jsonify({"info": f"No image datapoint with ID {datapoint_id} was found."}), 400
+        datapoint_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].update_imagedatapoint(datapoint_id, datapoint_to_update)
+        return jsonify({"info": datapoint_id})
+    else:
+        return jsonify({"info": f"Invalid data type {dtype}."}), 400
+
+
+
 #
 #   Routes to delete resources
 #
@@ -707,6 +805,44 @@ def delete_tumbleweed(tumbleweed_id):
     if tumbleweed_id is None:
         return jsonify({"info": f"The Tumbleweed with ID {tumbleweed_id} cannot be deleted."}), 400
     return jsonify({"info": tumbleweed_id})
+
+
+@app.route("/delete-commandType/<int:commandType_id>", methods=["DELETE"])
+@handle_exception
+def delete_commandType(commandType_id):
+    commandType = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_commandType(commandType_id)
+    if commandType is None:
+        return jsonify({"info": f"The Command Type with ID {commandType_id} was not found."}), 400
+    commandType_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].delete_commandType(commandType_id)
+    if commandType_id is None:
+        return jsonify({"info": f"The Command Type with ID {commandType_id} cannot be deleted."}), 400
+    return jsonify({"info": commandType_id})
+
+
+@app.route("/delete-run/<int:run_id>", methods=["DELETE"])
+@handle_exception
+def delete_run(run_id):
+    run = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_run(run_id)
+    if run.ended_at is None:
+        return jsonify({"info": f"The Run with ID {run_id} is still active."}), 400
+    if run is None:
+        return jsonify({"info": f"The Run with ID {run_id} was not found."}), 400
+    run_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].delete_run(run_id)
+    if run_id is None:
+        return jsonify({"info": f"The Run with ID {run_id} cannot be deleted."}), 400
+    return jsonify({"info": run_id})
+
+
+@app.route("/delete-tumblebase/<int:tumblebase_id>", methods=["DELETE"])
+@handle_exception
+def delete_tumblebase(tumblebase_id):
+    tumblebase = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_tumblebase(tumblebase_id)
+    if tumblebase is None:
+        return jsonify({"info": f"The Tumblebase with ID {tumblebase_id} was not found."}), 400
+    tumblebase_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].delete_tumblebase(tumblebase_id)
+    if tumblebase_id is None:
+        return jsonify({"info": f"The Tumblebase with ID {tumblebase_id} cannot be deleted."}), 400
+    return jsonify({"info": tumblebase_id})
 
 
 if __name__ == "__main__":

@@ -1,43 +1,43 @@
 from datetime import datetime, timezone
 import base64
 
-tumbleweed_json = {
+tumbleweed_json_template = {
             "address": "1234567890123456",
             "name": "SaraWeed"
         }
-subSystem_json = {
+subSystem_json_template = {
             "name": "Test System",
             "description": None
         }
-dataSource_json = {
+dataSource_json_template = {
             "name": "test sensor",
             "description": None,
             "short_key": "T1",
             "dtype": "L",
             "type": "Test Sensor 5000"
         }
-commandType_json = {
+commandType_json_template = {
             "type": "send_test_command",
             "description": "Returns a test command to the sender"
         }
-command_json = {
+command_json_template = {
             "args": None,
             "response": None,
             "received_response_at": None,
             "response_message_id": None
         }
-tumblebase_json = {
+tumblebase_json_template = {
             "address": "123456789123457",
             "name": "Tumblebase1",
             "host": "0.0.0.0",
             "port": 8002,
             "command_route": "/send-command"
         }
-run_json = {
+run_json_template = {
             "name": "Test run",
             "description": "testing the rest api"
         }
-floatdatapoint_json = {
+floatdatapoint_json_template = {
             "receiving_start": datetime.now(timezone.utc).isoformat(),
             "receiving_done": datetime.now(timezone.utc).isoformat(),
             "data": 28.59383,
@@ -45,7 +45,7 @@ floatdatapoint_json = {
             "packets_received": 1,
             "message_id": 2
         }
-longdatapoint_json = {
+longdatapoint_json_template = {
             "receiving_start": datetime.now(timezone.utc).isoformat(),
             "receiving_done": datetime.now(timezone.utc).isoformat(),
             "data": 234963285475293,
@@ -53,7 +53,7 @@ longdatapoint_json = {
             "packets_received": 1,
             "message_id": 2
         }
-intdatapoint_json = {
+intdatapoint_json_template = {
             "receiving_start": datetime.now(timezone.utc).isoformat(),
             "receiving_done": datetime.now(timezone.utc).isoformat(),
             "data": 325848,
@@ -61,7 +61,7 @@ intdatapoint_json = {
             "packets_received": 1,
             "message_id": 2
         }
-stringdatapoint_json = {
+stringdatapoint_json_template = {
             "receiving_start": datetime.now(timezone.utc).isoformat(),
             "receiving_done": datetime.now(timezone.utc).isoformat(),
             "data": "success test data",
@@ -69,7 +69,7 @@ stringdatapoint_json = {
             "packets_received": 1,
             "message_id": 2
         }
-bytedatapoint_json = {
+bytedatapoint_json_template = {
             "receiving_start": datetime.now(timezone.utc).isoformat(),
             "receiving_done": datetime.now(timezone.utc).isoformat(),
             "data": 'RdOPOw==',
@@ -77,7 +77,7 @@ bytedatapoint_json = {
             "packets_received": 1,
             "message_id": 2
         }
-imagedatapoint_json = {
+imagedatapoint_json_template = {
             "receiving_start": datetime.now(timezone.utc).isoformat(),
             "receiving_done": datetime.now(timezone.utc).isoformat(),
             "data": '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh'

@@ -766,6 +766,60 @@ class TumbleWebLogic(BusinessLogic):
         else:
             return None
 
+    @execute_in_session
+    def get_longdatapoint(self, datapoint_id, session=None):
+        data_dao = self.longData_repository.get_entity(datapoint_id, session)
+        if data_dao is not None:
+            data_dto = LongDataDTO.create_from_dao(data_dao)
+            return data_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_floatdatapoint(self, datapoint_id, session=None):
+        data_dao = self.floatData_repository.get_entity(datapoint_id, session)
+        if data_dao is not None:
+            data_dto = FloatDataDTO.create_from_dao(data_dao)
+            return data_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_intdatapoint(self, datapoint_id, session=None):
+        data_dao = self.intData_repository.get_entity(datapoint_id, session)
+        if data_dao is not None:
+            data_dto = IntDataDTO.create_from_dao(data_dao)
+            return data_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_stringdatapoint(self, datapoint_id, session=None):
+        data_dao = self.stringData_repository.get_entity(datapoint_id, session)
+        if data_dao is not None:
+            data_dto = StringDataDTO.create_from_dao(data_dao)
+            return data_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_bytedatapoint(self, datapoint_id, session=None):
+        data_dao = self.byteData_repository.get_entity(datapoint_id, session)
+        if data_dao is not None:
+            data_dto = ByteDataDTO.create_from_dao(data_dao)
+            return data_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_imagedatapoint(self, datapoint_id, session=None):
+        data_dao = self.imageData_repository.get_entity(datapoint_id, session)
+        if data_dao is not None:
+            data_dto = ImageDataDTO.create_from_dao(data_dao)
+            return data_dto
+        else:
+            return None
+
     """ Methods to update resources"""
 
     @execute_in_session
@@ -817,6 +871,48 @@ class TumbleWebLogic(BusinessLogic):
         command_id = self.command_repository.save_entity(command_dao, session)
         return command_id
 
+    @execute_in_session
+    def update_longdatapoint(self, datapoint_id, datapoint_dto, session=None):
+        datapoint_dao = LongData.create_from_dto_update(datapoint_dto)
+        datapoint_dao.id = datapoint_id
+        datapoint_id = self.longData_repository.save_entity(datapoint_dao, session)
+        return datapoint_id
+
+    @execute_in_session
+    def update_intdatapoint(self, datapoint_id, datapoint_dto, session=None):
+        datapoint_dao = IntData.create_from_dto_update(datapoint_dto)
+        datapoint_dao.id = datapoint_id
+        datapoint_id = self.intData_repository.save_entity(datapoint_dao, session)
+        return datapoint_id
+
+    @execute_in_session
+    def update_floatdatapoint(self, datapoint_id, datapoint_dto, session=None):
+        datapoint_dao = FloatData.create_from_dto_update(datapoint_dto)
+        datapoint_dao.id = datapoint_id
+        datapoint_id = self.floatData_repository.save_entity(datapoint_dao, session)
+        return datapoint_id
+
+    @execute_in_session
+    def update_stringdatapoint(self, datapoint_id, datapoint_dto, session=None):
+        datapoint_dao = StringData.create_from_dto_update(datapoint_dto)
+        datapoint_dao.id = datapoint_id
+        datapoint_id = self.stringData_repository.save_entity(datapoint_dao, session)
+        return datapoint_id
+
+    @execute_in_session
+    def update_bytedatapoint(self, datapoint_id, datapoint_dto, session=None):
+        datapoint_dao = ByteData.create_from_dto_update(datapoint_dto)
+        datapoint_dao.id = datapoint_id
+        datapoint_id = self.byteData_repository.save_entity(datapoint_dao, session)
+        return datapoint_id
+
+    @execute_in_session
+    def update_imagedatapoint(self, datapoint_id, datapoint_dto, session=None):
+        datapoint_dao = ImageData.create_from_dto_update(datapoint_dto)
+        datapoint_dao.id = datapoint_id
+        datapoint_id = self.imageData_repository.save_entity(datapoint_dao, session)
+        return datapoint_id
+
     """ Methods to delete resources """
 
     @execute_in_session
@@ -842,3 +938,27 @@ class TumbleWebLogic(BusinessLogic):
             return None
         else:
             return tumbleweed_id
+
+    @execute_in_session
+    def delete_commandType(self, commandType_id, session=None):
+        commandType_id = self.commandType_repository.delete_entity(commandType_id, session)
+        if commandType_id is None:
+            return None
+        else:
+            return commandType_id
+
+    @execute_in_session
+    def delete_run(self, run_id, session=None):
+        run_id = self.run_repository.delete_entity(run_id, session)
+        if run_id is None:
+            return None
+        else:
+            return run_id
+
+    @execute_in_session
+    def delete_tumblebase(self, tumblebase_id, session=None):
+        tumblebase_id = self.tumbleBase_repository.delete_entity(tumblebase_id, session)
+        if tumblebase_id is None:
+            return None
+        else:
+            return tumblebase_id
