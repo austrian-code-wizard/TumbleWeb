@@ -685,49 +685,160 @@ class TumbleWebLogic(BusinessLogic):
         else:
             return None
 
+    @execute_in_session
+    def get_commands_by_commandType_id(self, commmandType_id, session=None):
+        commands_dao = self.command_repository.get_by_commandType_id(commmandType_id, session)
+        if commands_dao is not None:
+            commands_dto = CommandDTO.create_from_dao_list(commands_dao)
+            return commands_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_commands_by_tumbleweed_id_and_run_id(self, tumbleweed_id, run_id, session=None):
+        commands_dao = self.command_repository.get_by_tumbleweed_id_and_run_id(tumbleweed_id, run_id, session)
+        if commands_dao is not None:
+            commands_dto = CommandDTO.create_from_dao_list(commands_dao)
+            return commands_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_unanswered_commands_by_tumbleweed_id_and_run_id(self, tumbleweed_id, run_id, session=None):
+        commands_dao = self.command_repository.get_unanswered_by_tumbleweed_id_and_run_id(tumbleweed_id, run_id, session)
+        if commands_dao is not None:
+            commands_dto = CommandDTO.create_from_dao_list(commands_dao)
+            return commands_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_longdatapoints_by_dataSource_and_run(self, dataSource_id, run_id, session=None):
+        longdata_dao = self.longData_repository.get_by_dataSource_id_and_run_id(dataSource_id, run_id, session)
+        if longdata_dao is not None:
+            longdata_dto = LongDataDTO.create_from_dao_list(longdata_dao)
+            return longdata_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_intdatapoints_by_dataSource_and_run(self, dataSource_id, run_id, session=None):
+        intdata_dao = self.intData_repository.get_by_dataSource_id_and_run_id(dataSource_id, run_id, session)
+        if intdata_dao is not None:
+            intdata_dto = IntDataDTO.create_from_dao_list(intdata_dao)
+            return intdata_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_floatdatapoints_by_dataSource_and_run(self, dataSource_id, run_id, session=None):
+        floatdata_dao = self.floatData_repository.get_by_dataSource_id_and_run_id(dataSource_id, run_id, session)
+        if floatdata_dao is not None:
+            floatdata_dto = FloatDataDTO.create_from_dao_list(floatdata_dao)
+            return floatdata_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_stringdatapoints_by_dataSource_and_run(self, dataSource_id, run_id, session=None):
+        stringdata_dao = self.stringData_repository.get_by_dataSource_id_and_run_id(dataSource_id, run_id, session)
+        if stringdata_dao is not None:
+            stringdata_dto = StringDataDTO.create_from_dao_list(stringdata_dao)
+            return stringdata_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_bytedatapoints_by_dataSource_and_run(self, dataSource_id, run_id, session=None):
+        bytedata_dao = self.byteData_repository.get_by_dataSource_id_and_run_id(dataSource_id, run_id, session)
+        if bytedata_dao is not None:
+            bytedata_dto = ByteDataDTO.create_from_dao_list(bytedata_dao)
+            return bytedata_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_imagedatapoints_by_dataSource_and_run(self, dataSource_id, run_id, session=None):
+        imagedata_dao = self.imageData_repository.get_by_dataSource_id_and_run_id(dataSource_id, run_id, session)
+        if imagedata_dao is not None:
+            imagedata_dto = ImageDataDTO.create_from_dao_list(imagedata_dao)
+            return imagedata_dto
+        else:
+            return None
+
     """ Methods to update resources"""
 
     @execute_in_session
     def update_tumbleweed(self, tumbleweed_id, tumbleweed_dto, session=None):
-        tumbleweed_dao = Tumbleweed.create_from_dto(tumbleweed_dto)
+        tumbleweed_dao = Tumbleweed.create_from_dto_update(tumbleweed_dto)
         tumbleweed_dao.id = tumbleweed_id
         tumbleweed_id = self.tumbleweed_repository.save_entity(tumbleweed_dao, session)
         return tumbleweed_id
 
     @execute_in_session
     def update_tumblebase(self, tumblebase_id, tumblebase_dto, session=None):
-        tumblebase_dao = TumbleBase.create_from_dto(tumblebase_dto)
+        tumblebase_dao = TumbleBase.create_from_dto_update(tumblebase_dto)
         tumblebase_dao.id = tumblebase_id
         tumblebase_id = self.tumbleBase_repository.save_entity(tumblebase_dao, session)
         return tumblebase_id
 
     @execute_in_session
     def update_subSystem(self, subSystem_id, subSystem_dto, session=None):
-        subSystem_dao = SubSystem.create_from_dto(subSystem_dto)
+        subSystem_dao = SubSystem.create_from_dto_update(subSystem_dto)
         subSystem_dao.id = subSystem_id
         subSystem_id = self.subSystem_repository.save_entity(subSystem_dao, session)
         return subSystem_id
 
     @execute_in_session
     def update_dataSource(self, dataSource_id, dataSource_dto, session=None):
-        dataSource_dao = DataSource.create_from_dto(dataSource_dto)
+        dataSource_dao = DataSource.create_from_dto_update(dataSource_dto)
         dataSource_dao.id = dataSource_id
         dataSource_id = self.dataSource_repository.save_entity(dataSource_dao, session)
         return dataSource_id
 
     @execute_in_session
     def update_commandType(self, commandType_id, commandType_dto, session=None):
-        commandType_dao = CommandType.create_from_dto(commandType_dto)
+        commandType_dao = CommandType.create_from_dto_update(commandType_dto)
         commandType_dao.id = commandType_id
         commandType_id = self.commandType_repository.save_entity(commandType_dao, session)
         return commandType_id
 
     @execute_in_session
     def update_run(self, run_id, run_dto, session=None):
-        run_dao = Run.create_from_dto(run_dto)
+        run_dao = Run.create_from_dto_update(run_dto)
         run_dao.id = run_id
         run_id = self.run_repository.save_entity(run_dao, session)
         return run_id
 
+    @execute_in_session
+    def update_command(self, command_id, command_dto, session=None):
+        command_dao = Command.create_from_dto_update(command_dto)
+        command_dao.id = command_id
+        command_id = self.command_repository.save_entity(command_dao, session)
+        return command_id
+
     """ Methods to delete resources """
 
+    @execute_in_session
+    def delete_dataSource(self, dataSource_id, session=None):
+        dataSource_id = self.dataSource_repository.delete_entity(dataSource_id, session)
+        if dataSource_id is None:
+            return None
+        else:
+            return dataSource_id
+
+    @execute_in_session
+    def delete_subSystem(self, subSystem_id, session=None):
+        subSystem_id = self.subSystem_repository.delete_entity(subSystem_id, session)
+        if subSystem_id is None:
+            return None
+        else:
+            return subSystem_id
+
+    @execute_in_session
+    def delete_tumbleweed(self, tumbleweed_id, session=None):
+        tumbleweed_id = self.tumbleweed_repository.delete_entity(tumbleweed_id, session)
+        if tumbleweed_id is None:
+            return None
+        else:
+            return tumbleweed_id

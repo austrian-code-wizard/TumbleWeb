@@ -62,7 +62,52 @@ class TumbleweedRepository(Repository):
         super().__init__(logger, Tumbleweed)
 
     def delete_entity(self, entity_id, session):
-        raise NotImplementedError("Not available!")
+        tumbleweed = session.query(self.entity_model).filter(self.entity_model.id == entity_id).first()
+        if len(tumbleweed.subsystems) > 0 or len(tumbleweed.data_sources) > 0:
+            return None
+        for run in tumbleweed.runs:
+            for datapoint in run.long_data_points:
+                session.delete(datapoint)
+            for datapoint in run.int_data_points:
+                session.delete(datapoint)
+            for datapoint in run.float_data_points:
+                session.delete(datapoint)
+            for datapoint in run.string_data_points:
+                session.delete(datapoint)
+            for datapoint in run.byte_data_points:
+                session.delete(datapoint)
+            for datapoint in run.image_data_points:
+                session.delete(datapoint)
+            for command in run.commands:
+                command.tumbleweed = None
+                command.tumbleweed_id = None
+                command.run_id = None
+                command.run = None
+                command.command_type_id = None
+                command.command_type = None
+                command.sender_base = None
+                command.sender_base_id = None
+                command.received_from_bases = []
+                session.delete(command)
+            run.tumbleweed = None
+            run.tumbleweed_id = None
+            session.delete(run)
+        tumbleweed.tumblebases = []
+        tumbleweed.data_sources = []
+        tumbleweed.subsystems = []
+        for command in tumbleweed.commands:
+            command.tumbleweed = None
+            command.tumbleweed_id = None
+            command.run_id = None
+            command.run = None
+            command.command_type_id = None
+            command.command_type = None
+            command.sender_base = None
+            command.sender_base_id = None
+            command.received_from_bases = []
+            session.delete(command)
+        session.delete(tumbleweed)
+        return entity_id
 
     def get_by_address(self, address, session):
         return session.query(self.entity_model).filter(self.entity_model.address == address).first()
@@ -104,7 +149,14 @@ class SubSystemRepository(Repository):
         super().__init__(logger, SubSystem)
 
     def delete_entity(self, entity_id, session):
-        raise NotImplementedError("Not available!")
+        subSystem = session.query(self.entity_model).filter(self.entity_model.id == entity_id).first()
+        if len(subSystem.data_sources) > 0:
+            return None
+        else:
+            subSystem.tumbleweed_id = None
+            subSystem.tumbleweed = None
+            session.delete(subSystem)
+            return entity_id
 
     def get_by_tumbleweed_id(self, tumbleweed_id, session):
         return session.query(self.entity_model).filter(self.entity_model.tumbleweed_id == tumbleweed_id).all()
@@ -133,6 +185,17 @@ class CommandRepository(Repository):
     def delete_entity(self, entity_id, session):
         raise NotImplementedError("Not available!")
 
+    def get_by_commandType_id(self, commandType_id, session):
+        return session.query(self.entity_model).filter(self.entity_model.command_type_id == commandType_id).all()
+
+    def get_by_tumbleweed_id_and_run_id(self, tumbleweed_id, run_id, session):
+        return session.query(self.entity_model).filter(self.entity_model.tumbleweed_id == tumbleweed_id).filter(self.entity_model.run_id == run_id).all()
+
+    def get_unanswered_by_tumbleweed_id_and_run_id(self, tumbleweed_id, run_id, session):
+        return session.query(self.entity_model).filter(self.entity_model.tumbleweed_id == tumbleweed_id).filter(
+            self.entity_model.run_id == run_id).filter(self.entity_model.response == None).filter(
+            self.entity_model.received_response_at == None).filter(self.entity_model.response_message_id == None).all()
+
 
 class DataSourceRepository(Repository):
     """
@@ -143,7 +206,26 @@ class DataSourceRepository(Repository):
         super().__init__(logger, DataSource)
 
     def delete_entity(self, entity_id, session):
-        raise NotImplementedError("Not available!")
+        dataSource = session.query(self.entity_model).filter(self.entity_model.id == entity_id).first()
+        for dataPoint in dataSource.long_data_points:
+            session.delete(dataPoint)
+        for dataPoint in dataSource.int_data_points:
+            session.delete(dataPoint)
+        for dataPoint in dataSource.float_data_points:
+            session.delete(dataPoint)
+        for dataPoint in dataSource.string_data_points:
+            session.delete(dataPoint)
+        for dataPoint in dataSource.byte_data_points:
+            session.delete(dataPoint)
+        for dataPoint in dataSource.image_data_points:
+            session.delete(dataPoint)
+        dataSource.subsystem_id = None
+        dataSource.subsystem = None
+        dataSource.tumbleweed_id = None
+        dataSource.tumbleweed = None
+        session.delete(dataSource)
+        return entity_id
+
 
     def get_dataSources_by_tumbleweed_id(self, tumbleweed_id, session):
         return session.query(self.entity_model).filter(self.entity_model.tumbleweed_id == tumbleweed_id).all()
@@ -167,6 +249,9 @@ class LongDataRepository(Repository):
     def delete_entity(self, entity_id, session):
         raise NotImplementedError("Not available!")
 
+    def get_by_dataSource_id_and_run_id(self, dataSource_id, run_id, session):
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(self.entity_model.run_id == run_id).all()
+
 
 class IntDataRepository(Repository):
     """
@@ -178,6 +263,9 @@ class IntDataRepository(Repository):
 
     def delete_entity(self, entity_id, session):
         raise NotImplementedError("Not available!")
+
+    def get_by_dataSource_id_and_run_id(self, dataSource_id, run_id, session):
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(self.entity_model.run_id == run_id).all()
 
 
 class FloatDataRepository(Repository):
@@ -191,6 +279,9 @@ class FloatDataRepository(Repository):
     def delete_entity(self, entity_id, session):
         raise NotImplementedError("Not available!")
 
+    def get_by_dataSource_id_and_run_id(self, dataSource_id, run_id, session):
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(self.entity_model.run_id == run_id).all()
+
 
 class StringDataRepository(Repository):
     """
@@ -202,6 +293,9 @@ class StringDataRepository(Repository):
 
     def delete_entity(self, entity_id, session):
         raise NotImplementedError("Not available!")
+
+    def get_by_dataSource_id_and_run_id(self, dataSource_id, run_id, session):
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(self.entity_model.run_id == run_id).all()
 
 
 class ByteDataRepository(Repository):
@@ -215,6 +309,10 @@ class ByteDataRepository(Repository):
     def delete_entity(self, entity_id, session):
         raise NotImplementedError("Not available!")
 
+    def get_by_dataSource_id_and_run_id(self, dataSource_id, run_id, session):
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(self.entity_model.run_id == run_id).all()
+
+
 class ImageDataRepository(Repository):
     """
     A repository for Byte data.
@@ -225,3 +323,6 @@ class ImageDataRepository(Repository):
 
     def delete_entity(self, entity_id, session):
         raise NotImplementedError("Not available!")
+
+    def get_by_dataSource_id_and_run_id(self, dataSource_id, run_id, session):
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(self.entity_model.run_id == run_id).all()

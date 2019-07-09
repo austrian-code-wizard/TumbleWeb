@@ -28,6 +28,8 @@ class BaseClass:
     def create_from_dao(cls, dao):
         dto = cls()
         for column_name in dao.__table__.columns.keys():
+            if column_name[0] == "_":
+                column_name = column_name[1:]
             setattr(dto, column_name, getattr(dao, column_name))
         return dto
 
@@ -201,9 +203,7 @@ class ImageData(BaseClass):
     run_id: int = None
     receiving_start: datetime = None
     receiving_done: datetime = None
-    data: str = None
-    image_bytes: bytes = None
-    image_format: ImageFormat = None
+    data: bytes = None
     packets: int = None
     packets_received: int = None
     message_id: int = None

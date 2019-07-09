@@ -384,6 +384,50 @@ def get_run(run_id):
         return jsonify(result)
 
 
+@app.route("/get-command/<int:command_id>", methods=["GET"])
+@handle_exception
+def get_command(command_id):
+    found_command = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_command(command_id)
+    if found_command is None:
+        return jsonify({"info": f"No command with id {command_id} exists."}), 400
+    else:
+        result = app.config["TUMBLEWEB_COMMAND_SCHEMA"].dump(found_command)
+        return jsonify(result)
+
+
+@app.route("/get-commands-by-commandType-id/<int:commandType_id>", methods=["GET"])
+@handle_exception
+def get_commands_by_commandType_id(commandType_id):
+    found_commands = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_commands_by_commandType_id(commandType_id)
+    if found_commands is None:
+        return jsonify({"info": f"No commands for commandType with ID {commandType_id} exist."}), 400
+    else:
+        result = app.config["TUMBLEWEB_COMMAND_SCHEMA"].dump(found_commands, many=True)
+        return jsonify(result)
+
+
+@app.route("/get-commands-by-tumbleweed-id-and-run-id/<int:tumbleweed_id>/<int:run_id>", methods=["GET"])
+@handle_exception
+def get_commands_by_tumbleweed_id_and_run_id(tumbleweed_id, run_id):
+    found_commands = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_commands_by_tumbleweed_id_and_run_id(tumbleweed_id, run_id)
+    if found_commands is None:
+        return jsonify({"info": f"No commands for Tumbleweed with ID {tumbleweed_id} and run with id {run_id} exist."}), 400
+    else:
+        result = app.config["TUMBLEWEB_COMMAND_SCHEMA"].dump(found_commands, many=True)
+        return jsonify(result)
+
+
+@app.route("/get-unanswered-commands-by-tumbleweed-id-and-run-id/<int:tumbleweed_id>/<int:run_id>", methods=["GET"])
+@handle_exception
+def get_unanswered_commands_by_tumbleweed_id_and_run_id(tumbleweed_id, run_id):
+    found_commands = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_unanswered_commands_by_tumbleweed_id_and_run_id(tumbleweed_id, run_id)
+    if found_commands is None:
+        return jsonify({"info": f"No commands for Tumbleweed with ID {tumbleweed_id} and run with id {run_id} exist."}), 400
+    else:
+        result = app.config["TUMBLEWEB_COMMAND_SCHEMA"].dump(found_commands, many=True)
+        return jsonify(result)
+
+
 @app.route("/get-tumbleweed-by-address/<string:tumbleweed_address>", methods=["GET"])
 @handle_exception
 def get_tumbleweed_by_address(tumbleweed_address):
@@ -417,6 +461,20 @@ def get_subSystems_by_tumbleweed_id(tumbleweed_id):
         return jsonify(result)
 
 
+@app.route("/get-active-run/<int:tumbleweed_id>")
+@handle_exception
+def get_active_run(tumbleweed_id):
+    tumbleweed = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_tumbleweed(tumbleweed_id)
+    if tumbleweed is None:
+        return jsonify({"info": f"No tumbleweed with id {tumbleweed_id} exists."}), 400
+    active_run = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_active_run(tumbleweed_id)
+    if active_run is None:
+        return jsonify({"info": f"The tumbleweed with id {tumbleweed_id} is not active."})
+    else:
+        result = app.config["TUMBLEWEB_RUN_SCHEMA"].dump(active_run)
+        return jsonify(result)
+
+
 @app.route("/get-dataSources-by-subSystem-id/<int:subSystem_id>", methods=["GET"])
 @handle_exception
 def get_dataSources_by_subSystem_id(subSystem_id):
@@ -440,6 +498,55 @@ def get_dataSource_by_short_key_and_tumbleweed_address(short_key, address):
     else:
         result = app.config["TUMBLEWEB_DATASOURCE_SCHEMA"].dump(found_dataSource)
         return jsonify(result)
+
+
+@app.route("/get-datapoints-by-dataSource-and-run/<int:dataSource_id>/<int:run_id>", methods=["GET"])
+@handle_exception
+def get_datapoints_by_dataSource_and_run(dataSource_id, run_id):
+    dataSource = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_dataSource(dataSource_id)
+    if dataSource is None:
+        return jsonify({"info": f"No dataSource with id {dataSource_id} exists."}), 400
+    run = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_run(run_id)
+    if run is None:
+        return jsonify({"info": f"No run with id {run_id} exists."}), 400
+    if dataSource.dtype == DType.Long:
+        datapoints = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_longdatapoints_by_dataSource_and_run(dataSource_id, run_id)
+        if datapoints is None:
+            return jsonify({"info": f"No datapoints for data source {dataSource_id} and run {run_id} exist."}), 400
+        result = app.config["TUMBLEWEB_LONGDATA_SCHEMA"].dump(datapoints, many=True)
+        return jsonify(result)
+    elif dataSource.dtype == DType.Int:
+        datapoints = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_intdatapoints_by_dataSource_and_run(dataSource_id, run_id)
+        if datapoints is None:
+            return jsonify({"info": f"No datapoints for data source {dataSource_id} and run {run_id} exist."}), 400
+        result = app.config["TUMBlEWEB_INTDATA_SCHEMA"].dump(datapoints, many=True)
+        return jsonify(result)
+    elif dataSource.dtype == DType.Float:
+        datapoints = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_floatdatapoints_by_dataSource_and_run(dataSource_id, run_id)
+        if datapoints is None:
+            return jsonify({"info": f"No datapoints for data source {dataSource_id} and run {run_id} exist."}), 400
+        result = app.config["TUMBLEWEB_FLOATDATA_SCHEMA"].dump(datapoints, many=True)
+        return jsonify(result)
+    elif dataSource.dtype == DType.String:
+        datapoints = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_stringdatapoints_by_dataSource_and_run(dataSource_id, run_id)
+        if datapoints is None:
+            return jsonify({"info": f"No datapoints for data source {dataSource_id} and run {run_id} exist."}), 400
+        result = app.config["TUMBLEWEB_STRINGDATA_SCHEMA"].dump(datapoints, many=True)
+        return jsonify(result)
+    elif dataSource.dtype == DType.Byte:
+        datapoints = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_bytedatapoints_by_dataSource_and_run(dataSource_id, run_id)
+        if datapoints is None:
+            return jsonify({"info": f"No datapoints for data source {dataSource_id} and run {run_id} exist."}), 400
+        result = app.config["TUMBLEWEB_BYTEDATA_SCHEMA"].dump(datapoints, many=True)
+        return jsonify(result)
+    elif dataSource.dtype == DType.Image:
+        datapoints = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_imagedatapoints_by_dataSource_and_run(dataSource_id, run_id)
+        if datapoints is None:
+            return jsonify({"info": f"No datapoints for data source {dataSource_id} and run {run_id} exist."}), 400
+        result = app.config["TUMBLEWEB_IMAGEDATA_SCHEMA"].dump(datapoints, many=True)
+        return jsonify(result)
+    else:
+        return jsonify({"info": f"Data source {dataSource_id} has an invalid dtype."}), 400
 
 
 @app.route("/get-tumbleweeds", methods=["GET"])
@@ -549,11 +656,47 @@ def update_run(run_id):
     run_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].update_run(run_id, run_to_update)
     return jsonify({"info": run_id})
 
+
+@app.route("/update-command/<int:command_id>", methods=["PATCH"])
+@handle_exception
+def update_command(command_id):
+    command_json = request.get_json()
+    command_to_update = app.config["TUMBLEWEB_COMMAND_SCHEMA"].load(command_json)
+    command = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_command(command_id)
+    if command is None:
+        return jsonify({"info": f"The command with ID {command_id} was not found."}), 400
+    command_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].update_command(command_id, command_to_update)
+    return jsonify({"info": command_id})
+
 #
 #   Routes to delete resources
 #
 
-"""
+
+@app.route("/delete-dataSource/<int:dataSource_id>", methods=["DELETE"])
+@handle_exception
+def delete_dataSource(dataSource_id):
+    dataSource = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_dataSource(dataSource_id)
+    if dataSource is None:
+        return jsonify({"info": f"The DataSource with ID {dataSource_id} was not found."}), 400
+    dataSource_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].delete_dataSource(dataSource_id)
+    if dataSource_id is None:
+        return jsonify({"info": f"The DataSource with ID {dataSource_id} cannot be deleted."}), 400
+    return jsonify({"info": dataSource_id})
+
+
+@app.route("/delete-subSystem/<int:subSystem_id>", methods=["DELETE"])
+@handle_exception
+def delete_subSystem(subSystem_id):
+    subSystem = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_subSystem(subSystem_id)
+    if subSystem is None:
+        return jsonify({"info": f"The Sub System with ID {subSystem_id} was not found."}), 400
+    subSystem_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].delete_subSystem(subSystem_id)
+    if subSystem_id is None:
+        return jsonify({"info": f"The Sub System with ID {subSystem_id} cannot be deleted."}), 400
+    return jsonify({"info": subSystem_id})
+
+
 @app.route("/delete-tumbleweed/<int:tumbleweed_id>", methods=["DELETE"])
 @handle_exception
 def delete_tumbleweed(tumbleweed_id):
@@ -561,8 +704,10 @@ def delete_tumbleweed(tumbleweed_id):
     if tumbleweed is None:
         return jsonify({"info": f"The Tumbleweed with ID {tumbleweed_id} was not found."}), 400
     tumbleweed_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].delete_tumbleweed(tumbleweed_id)
+    if tumbleweed_id is None:
+        return jsonify({"info": f"The Tumbleweed with ID {tumbleweed_id} cannot be deleted."}), 400
     return jsonify({"info": tumbleweed_id})
-"""
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="8006")

@@ -40,11 +40,20 @@ class BaseWithConverter(Base):
         return dao
 
     @classmethod
+    def create_from_dto_update(cls, dto):
+        dao = cls()
+        for key in dto.__dataclass_fields__.keys():
+            if getattr(dto, key) is not None and key != "created_at":
+                setattr(dao, key, getattr(dto, key))
+        return dao
+
+    @classmethod
     def create_from_dto_list(cls, dto_list):
         dao_list = list()
         for dto in dto_list:
             dao_list.append(cls.create_from_dto(dto))
         return dao_list
+
 
 class DataPoint(BaseWithConverter):
     __abstract__ = True
@@ -409,7 +418,7 @@ class ImageData(DataPoint):
     # fields
     receiving_start = Column(DateTime(timezone=True), nullable=False)
     receiving_done = Column(DateTime(timezone=True))
-    data = Column(String)
+    _data = Column(String)
     packets = Column(Integer, nullable=False)
     packets_received = Column(Integer, nullable=False)
     message_id = Column(Integer, nullable=False)
@@ -418,11 +427,15 @@ class ImageData(DataPoint):
     def __init__(self):
         super().__init__()
         self.data = None
+        self.__table__.columns.keys().append("data")
 
     @property
     def data(self):
         if self._data is not None:
-            return (open(self._data, "rb")).read()
+            value = None
+            with open(self._data, "rb") as f:
+                value = f.read()
+            return value
         else:
             return None
 

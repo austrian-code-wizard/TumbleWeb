@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import base64
 
 tumbleweed_json = {
@@ -38,48 +38,48 @@ run_json = {
             "description": "testing the rest api"
         }
 floatdatapoint_json = {
-            "receiving_start": datetime.isoformat(datetime.utcnow()),
-            "receiving_done": datetime.isoformat(datetime.utcnow()),
+            "receiving_start": datetime.now(timezone.utc).isoformat(),
+            "receiving_done": datetime.now(timezone.utc).isoformat(),
             "data": 28.59383,
             "packets": 1,
             "packets_received": 1,
             "message_id": 2
         }
 longdatapoint_json = {
-            "receiving_start": datetime.isoformat(datetime.utcnow()),
-            "receiving_done": datetime.isoformat(datetime.utcnow()),
+            "receiving_start": datetime.now(timezone.utc).isoformat(),
+            "receiving_done": datetime.now(timezone.utc).isoformat(),
             "data": 234963285475293,
             "packets": 1,
             "packets_received": 1,
             "message_id": 2
         }
 intdatapoint_json = {
-            "receiving_start": datetime.isoformat(datetime.utcnow()),
-            "receiving_done": datetime.isoformat(datetime.utcnow()),
+            "receiving_start": datetime.now(timezone.utc).isoformat(),
+            "receiving_done": datetime.now(timezone.utc).isoformat(),
             "data": 325848,
             "packets": 1,
             "packets_received": 1,
             "message_id": 2
         }
 stringdatapoint_json = {
-            "receiving_start": datetime.isoformat(datetime.utcnow()),
-            "receiving_done": datetime.isoformat(datetime.utcnow()),
+            "receiving_start": datetime.now(timezone.utc).isoformat(),
+            "receiving_done": datetime.now(timezone.utc).isoformat(),
             "data": "success test data",
             "packets": 1,
             "packets_received": 1,
             "message_id": 2
         }
 bytedatapoint_json = {
-            "receiving_start": datetime.isoformat(datetime.utcnow()),
-            "receiving_done": datetime.isoformat(datetime.utcnow()),
+            "receiving_start": datetime.now(timezone.utc).isoformat(),
+            "receiving_done": datetime.now(timezone.utc).isoformat(),
             "data": 'RdOPOw==',
             "packets": 1,
             "packets_received": 1,
             "message_id": 2
         }
 imagedatapoint_json = {
-            "receiving_start": datetime.isoformat(datetime.utcnow()),
-            "receiving_done": datetime.isoformat(datetime.utcnow()),
+            "receiving_start": datetime.now(timezone.utc).isoformat(),
+            "receiving_done": datetime.now(timezone.utc).isoformat(),
             "data": '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh'
 					'0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4e'
 					'Hh4eHh4eHh4eHh7/wAARCACAAIADASEAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAw'

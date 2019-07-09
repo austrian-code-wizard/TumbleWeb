@@ -1,7 +1,7 @@
 from model.data_transfer_objects import Tumbleweed, TumbleBase, Run, SubSystem, DataSource, IntData, LongData, FloatData, StringData, ByteData, Command, CommandType, ImageData
 from marshmallow import Schema, fields, post_load, post_dump, pre_dump, pre_load
 from marshmallow_enum import EnumField
-from datetime import datetime
+from datetime import datetime, timezone
 from model.enums import DType, ImageFormat
 import base64
 
@@ -16,7 +16,7 @@ class TumbleweedSchema(Schema):
 
     @post_load
     def init_model(self, data):
-        data["created_at"] = datetime.utcnow()
+        data["created_at"] = datetime.now(timezone.utc)
         return Tumbleweed(**data)
 
 
@@ -33,7 +33,7 @@ class TumbleBaseSchema(Schema):
 
     @post_load
     def init_model(self, data):
-        data["created_at"] = datetime.utcnow()
+        data["created_at"] = datetime.now(timezone.utc)
         return TumbleBase(**data)
 
 
@@ -49,7 +49,7 @@ class RunSchema(Schema):
 
     @post_load
     def init_model(self, data):
-        data["created_at"] = datetime.utcnow()
+        data["created_at"] = datetime.now(timezone.utc)
         return Run(**data)
 
 
@@ -64,7 +64,7 @@ class SubSystemSchema(Schema):
 
     @post_load
     def init_model(self, data):
-        data["created_at"] = datetime.utcnow()
+        data["created_at"] = datetime.now(timezone.utc)
         return SubSystem(**data)
 
 
@@ -78,7 +78,7 @@ class CommandTypeSchema(Schema):
 
     @post_load
     def init_model(self, data):
-        data["created_at"] = datetime.utcnow()
+        data["created_at"] = datetime.now(timezone.utc)
         return CommandType(**data)
 
 
@@ -98,7 +98,7 @@ class CommandSchema(Schema):
 
     @post_load
     def init_model(self, data):
-        data["created_at"] = datetime.utcnow()
+        data["created_at"] = datetime.now(timezone.utc)
         return Command(**data)
 
 
@@ -116,7 +116,7 @@ class DataSourceSchema(Schema):
 
     @post_load
     def init_model(self, data):
-        data["created_at"] = datetime.utcnow()
+        data["created_at"] = datetime.now(timezone.utc)
         return DataSource(**data)
 
 
@@ -183,6 +183,12 @@ class FloatDataSchema(Schema):
     def init_model(self, data):
         return FloatData(**data)
 
+    @post_dump
+    def convert_from_decimal(self, data):
+        if data["data"] is not None:
+            data["data"] = float(data["data"])
+        return data
+
 
 class StringDataSchema(Schema):
 
@@ -228,10 +234,10 @@ class ByteDataSchema(Schema):
 
     @pre_dump
     def convert_to_str(self, data):
-        if data["data"] is not None:
-            to_string = base64.b64encode(data["data"])
+        if data.data is not None:
+            to_string = base64.b64encode(data.data)
             to_string = to_string.decode()
-            data["data"] = to_string
+            data.data = to_string
         return data
 
 
@@ -257,3 +263,11 @@ class ImageDataSchema(Schema):
             to_bytes = base64.b64decode(to_bytes)
             data["data"] = to_bytes
         return ImageData(**data)
+
+    @pre_dump
+    def convert_to_str(self, data):
+        if data.data is not None:
+            to_string = base64.b64encode(data.data)
+            to_string = to_string.decode()
+            data.data = to_string
+        return data
