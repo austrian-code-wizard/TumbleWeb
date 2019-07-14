@@ -140,7 +140,7 @@ class TumbleweedRepository(Repository):
         return entity_id
 
     def get_by_address(self, address, session):
-        return session.query(self.entity_model).filter(self.entity_model.address == address).first()
+        return session.query(self.entity_model).filter(self.entity_model.address == address).all()
 
 
 class TumbleBaseRepository(Repository):

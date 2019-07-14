@@ -157,6 +157,10 @@ def start_run(tumbleweed_id):
     is_running = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_active_run(tumbleweed_id)
     if is_running is not None:
         return jsonify({"info": f"Tumbleweed {tumbleweed_id} is already active"}), 400
+    tumbleweeds_same_address = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_tumbleweed_by_address(tumbleweed.address)
+    for tumbleweed_same_address in tumbleweeds_same_address:
+        if app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_active_run(tumbleweed_same_address.id) is not None:
+            return jsonify({"info": f"A tumbleweed with the same address and id {tumbleweed_same_address.id} is already active"})
     run_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].start_run(run_to_insert, tumbleweed_id)
     if run_id is None:
         return jsonify({"info": f"The Run cannot be added."}), 400
@@ -227,9 +231,18 @@ def send_command(tumbleweed_id, tumblebase_id, commandType_id):
 @handle_exception
 def add_datapoint(tumbleweed_address, tumblebase_address, short_key):
     data_json = request.get_json()
-    tumbleweed = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_tumbleweed_by_address(tumbleweed_address)
+    tumbleweeds = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_tumbleweed_by_address(tumbleweed_address)
+    tumbleweed = None
+    run_id = None
+    for tw in tumbleweeds:
+        active_run = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_active_run(tw.id)
+        if active_run is not None:
+            if tumbleweed is not None:
+                return jsonify({"info": f"More than one tumbleweed with ID {tumbleweed_address} is active"}), 400
+            tumbleweed = tw
+            run_id = active_run.id
     if tumbleweed is None:
-        return jsonify({"info": f"The Tumbleweed with address {tumbleweed_address} does not exist."}), 400
+        return jsonify({"info": f"No Tumbleweed with address {tumbleweed_address} is active."}), 400
     dataSource = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_dataSource_by_tumbleweed_id_and_short_key(tumbleweed.id, short_key)
     if dataSource is None:
         return jsonify({"info": f"The DataSource with short key {short_key} does not exist for tumbleweed with address {tumbleweed_address}."}), 400
@@ -246,16 +259,6 @@ def add_datapoint(tumbleweed_address, tumblebase_address, short_key):
         tumblebase_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].save_tumblebase(tumblebase_to_insert)
     else:
         tumblebase_id = tumblebase.id
-    active_run = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_active_run(tumbleweed.id)
-    if active_run is None:
-        run_json = {
-            "name": "Unnamed run",
-            "description": "Default run."
-        }
-        run_to_insert = app.config["TUMBLEWEB_RUN_SCHEMA"].load(run_json)
-        run_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].start_run(run_to_insert, tumbleweed.id)
-    else:
-        run_id = active_run.id
     if dataSource.dtype == DType.Long:
         data_to_insert = app.config["TUMBLEWEB_LONGDATA_SCHEMA"].load(data_json)
         datapoint_id = app.config["TUMBLEWEB_BUSINESS_LOGIC"].save_LongData(data_to_insert)
@@ -435,7 +438,7 @@ def get_tumbleweed_by_address(tumbleweed_address):
     if found_tumbleweed is None:
         return jsonify({"info": f"No tumbleweed with id {tumbleweed_address} exists."}), 400
     else:
-        result = app.config["TUMBLEWEB_TUMBLEWEED_SCHEMA"].dump(found_tumbleweed)
+        result = app.config["TUMBLEWEB_TUMBLEWEED_SCHEMA"].dump(found_tumbleweed, many=True)
         return jsonify(result)
 
 
@@ -490,6 +493,7 @@ def get_dataSources_by_subSystem_id(subSystem_id):
 @handle_exception
 def get_dataSource_by_short_key_and_tumbleweed_address(short_key, address):
     tumbleweed_dto = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_tumbleweed_by_address(address)
+    tumbleweed_dto = tumbleweed_dto[0] #TODO: find a better fix for tws with same id
     if tumbleweed_dto is None:
         return jsonify({"info": f"No Tumbleweed with address {address.id} exists."}), 400
     found_dataSource = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_dataSource_by_tumbleweed_id_and_short_key(tumbleweed_dto.id, short_key)

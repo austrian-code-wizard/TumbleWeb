@@ -632,12 +632,16 @@ class RestApiTest(unittest.TestCase):
 
     def test_get_tumbleweed_by_address(self):
         response = self.app.post("/add-tumbleweed", json=self.tumbleweed_json)
+        response = self.app.post("/add-tumbleweed", json=self.tumbleweed_json)
         response = self.app.get(f"/get-tumbleweed-by-address/{self.tumbleweed_json['address']}")
         self.assertEqual(response.status, "200 OK")
-        self.assertIsInstance(response.json, dict)
-        self.assertEqual(response.json["address"], self.tumbleweed_json["address"])
-        self.assertEqual(response.json["name"], self.tumbleweed_json["name"])
-        self.assertIsInstance(datetime.fromisoformat(response.json["created_at"]), datetime)
+        self.assertIsInstance(response.json, list)
+        self.assertEqual(response.json[0]["address"], self.tumbleweed_json["address"])
+        self.assertEqual(response.json[0]["name"], self.tumbleweed_json["name"])
+        self.assertIsInstance(datetime.fromisoformat(response.json[0]["created_at"]), datetime)
+        self.assertEqual(response.json[1]["address"], self.tumbleweed_json["address"])
+        self.assertEqual(response.json[1]["name"], self.tumbleweed_json["name"])
+        self.assertIsInstance(datetime.fromisoformat(response.json[1]["created_at"]), datetime)
 
     def test_get_tumblebase_by_address(self):
         response = self.app.post("/add-tumblebase", json=self.tumblebase_json)

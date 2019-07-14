@@ -662,7 +662,7 @@ class TumbleWebLogic(BusinessLogic):
     def get_tumbleweed_by_address(self, tumbleweed_address, session=None):
         tumbleweed_dao = self.tumbleweed_repository.get_by_address(tumbleweed_address, session)
         if tumbleweed_dao is not None:
-            tumbleweed_dto = TumbleweedDTO.create_from_dao(tumbleweed_dao)
+            tumbleweed_dto = TumbleweedDTO.create_from_dao_list(tumbleweed_dao)
             return tumbleweed_dto
         else:
             return None
