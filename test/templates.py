@@ -202,4 +202,3 @@ imagedatapoint_json_template = {
             "packets_received": 1,
             "message_id": 2
         }
-
