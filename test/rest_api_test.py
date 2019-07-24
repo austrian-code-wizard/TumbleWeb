@@ -1063,6 +1063,34 @@ class RestApiTest(unittest.TestCase):
         self.assertEqual(response.json[1]["description"], self.commandType_json2["description"])
         self.assertEqual(response.json[1]["type"], self.commandType_json2["type"])
 
+    def test_get_runs_by_tumbleweed_id(self):
+        response = self.app.post("/add-tumbleweed", json=self.tumbleweed_json)
+        response = self.app.post("/add-subSystem/1", json=self.subSystem_json)
+        self.dataSource_json["dtype"] = "B"
+        response = self.app.post("/add-dataSource/1", json=self.dataSource_json)
+        response = self.app.post("/add-tumblebase", json=self.tumblebase_json)
+        response = self.app.post("/start-run/1", json=self.run_json)
+        response = self.app.post("/stop-run/1")
+        run_json2 = self.run_json.copy()
+        run_json2["name"] = "run2"
+        run_json2["description"] = "desc2"
+        response = self.app.post("/start-run/1", json=run_json2)
+        response = self.app.post("/stop-run/1")
+        run_json3 = self.run_json.copy()
+        run_json3["name"] = "run3"
+        run_json3["description"] = "desc3"
+        response = self.app.post("/start-run/1", json=run_json3)
+        response = self.app.get("/get-runs-by-tumbleweed-id/1")
+        self.assertEqual(response.status, "200 OK")
+        self.assertIsInstance(response.json, list)
+        self.assertEqual(len(response.json), 3)
+        self.assertEqual(response.json[0]["name"], self.run_json["name"])
+        self.assertEqual(response.json[0]["description"], self.run_json["description"])
+        self.assertEqual(response.json[1]["name"], run_json2["name"])
+        self.assertEqual(response.json[1]["description"], run_json2["description"])
+        self.assertEqual(response.json[2]["name"], run_json3["name"])
+        self.assertEqual(response.json[2]["description"], run_json3["description"])
+
     def test_delete_dataSource(self):
         response = self.app.post("/add-tumbleweed", json=self.tumbleweed_json)
         response = self.app.post("/add-subSystem/1", json=self.subSystem_json)

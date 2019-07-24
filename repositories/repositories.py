@@ -174,6 +174,9 @@ class RunRepository(Repository):
     def __init__(self, logger):
         super().__init__(logger, Run)
 
+    def get_runs_by_tumbleweed_id(self, tumbleweed_id, session):
+        return session.query(self.entity_model).filter(self.entity_model.tumbleweed_id == tumbleweed_id).order_by(self.entity_model.id).all()
+
     def delete_entity(self, entity_id, session):
         run = session.query(self.entity_model).filter(self.entity_model.id == entity_id).first()
         if run is None:
@@ -301,12 +304,14 @@ class CommandRepository(Repository):
         return session.query(self.entity_model).filter(self.entity_model.command_type_id == commandType_id).all()
 
     def get_by_tumbleweed_id_and_run_id(self, tumbleweed_id, run_id, session):
-        return session.query(self.entity_model).filter(self.entity_model.tumbleweed_id == tumbleweed_id).filter(self.entity_model.run_id == run_id).all()
+        return session.query(self.entity_model).filter(self.entity_model.tumbleweed_id == tumbleweed_id).filter(
+            self.entity_model.run_id == run_id).order_by(self.entity_model.id).all()
 
     def get_unanswered_by_tumbleweed_id_and_run_id(self, tumbleweed_id, run_id, session):
         return session.query(self.entity_model).filter(self.entity_model.tumbleweed_id == tumbleweed_id).filter(
             self.entity_model.run_id == run_id).filter(self.entity_model.response == None).filter(
-            self.entity_model.received_response_at == None).filter(self.entity_model.response_message_id == None).all()
+            self.entity_model.received_response_at == None).filter(
+            self.entity_model.response_message_id == None).order_by(self.entity_model.id).all()
 
 
 class DataSourceRepository(Repository):

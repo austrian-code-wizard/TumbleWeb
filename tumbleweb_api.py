@@ -197,7 +197,7 @@ def send_command(tumbleweed_id, tumblebase_id, commandType_id):
         return jsonify({"info": f"The Tumbleweed with id {tumbleweed_id} has no address configured."}), 400
     active_run = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_active_run(tumbleweed_id)
     if active_run is None:
-        return jsonify({"info": f"The Tumbleweed {tumbleweed_id} is currently not active"})
+        return jsonify({"info": f"The Tumbleweed {tumbleweed_id} is currently not active"}), 400
     tumblebase = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_tumblebase(tumblebase_id)
     if tumblebase is None:
         return jsonify({"info": f"The TumbleBase with id {tumblebase_id} does not exist."}), 400
@@ -216,7 +216,7 @@ def send_command(tumbleweed_id, tumblebase_id, commandType_id):
         "address": tumbleweed.address,
         "data": f"{data}"
     }
-    response = requests.post(f"http://{tumblebase.host}:{tumblebase.port}{tumblebase.command_route}", json=json_request)
+    response = requests.post(f"http://{tumblebase.host}:{tumblebase.port}/{tumblebase.command_route}", json=json_request)
     if response.status_code == 200:
         command = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_command(command_id)
         command.transmitted = True
@@ -472,9 +472,23 @@ def get_active_run(tumbleweed_id):
         return jsonify({"info": f"No tumbleweed with id {tumbleweed_id} exists."}), 400
     active_run = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_active_run(tumbleweed_id)
     if active_run is None:
-        return jsonify({"info": f"The tumbleweed with id {tumbleweed_id} is not active."})
+        return jsonify({"info": f"The tumbleweed with id {tumbleweed_id} is not active."}), 400
     else:
         result = app.config["TUMBLEWEB_RUN_SCHEMA"].dump(active_run)
+        return jsonify(result)
+
+
+@app.route("/get-runs-by-tumbleweed-id/<int:tumbleweed_id>", methods=["GET"])
+@handle_exception
+def get_runs_by_tumbleweed_id(tumbleweed_id):
+    tumbleweed = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_tumbleweed(tumbleweed_id)
+    if tumbleweed is None:
+        return jsonify({"info": f"No tumbleweed with id {tumbleweed_id} exists."}), 400
+    found_runs = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_runs_by_tumbleweed_id(tumbleweed_id)
+    if found_runs is None:
+        return jsonify({"info": f"No runs for tumbleweed with id {tumbleweed_id} exist."}), 400
+    else:
+        result = app.config["TUMBLEWEB_RUN_SCHEMA"].dump(found_runs, many=True)
         return jsonify(result)
 
 

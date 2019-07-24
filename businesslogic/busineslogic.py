@@ -604,6 +604,15 @@ class TumbleWebLogic(BusinessLogic):
             return None
 
     @execute_in_session
+    def get_runs_by_tumbleweed_id(self, tumbleweed_id, session=None):
+        runs_dao = self.run_repository.get_runs_by_tumbleweed_id(tumbleweed_id, session)
+        if runs_dao is not None:
+            runs_dto = RunDTO.create_from_dao_list(runs_dao)
+            return runs_dto
+        else:
+            return None
+
+    @execute_in_session
     def get_tumbleweeds(self, session=None):
         tumbleweeds_dao = self.tumbleweed_repository.get_entities(session)
         if tumbleweeds_dao is not None:
