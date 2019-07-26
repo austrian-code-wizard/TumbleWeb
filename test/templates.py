@@ -31,7 +31,7 @@ tumblebase_json_template = {
             "name": "Tumblebase1",
             "host": "0.0.0.0",
             "port": 8002,
-            "command_route": "/send-command"
+            "command_route": "send-command"
         }
 run_json_template = {
             "name": "Test run",

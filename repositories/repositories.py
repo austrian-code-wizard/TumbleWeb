@@ -396,7 +396,13 @@ class LongDataRepository(Repository):
         raise NotImplementedError("Not available!")
 
     def get_by_dataSource_id_and_run_id(self, dataSource_id, run_id, session):
-        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(self.entity_model.run_id == run_id).all()
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(
+            self.entity_model.run_id == run_id).order_by(self.entity_model.receiving_done).all()
+
+    def get_by_dataSource_id_and_run_id_interval(self, dataSource_id, run_id, start, end, session):
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(
+            self.entity_model.run_id == run_id).filter(self.entity_model.receiving_start >= start).filter(
+            self.entity_model.receiving_start <= end).order_by(self.entity_model.receiving_start).all()
 
 
 class IntDataRepository(Repository):
@@ -411,8 +417,13 @@ class IntDataRepository(Repository):
         raise NotImplementedError("Not available!")
 
     def get_by_dataSource_id_and_run_id(self, dataSource_id, run_id, session):
-        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(self.entity_model.run_id == run_id).all()
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(
+            self.entity_model.run_id == run_id).order_by(self.entity_model.receiving_done).all()
 
+    def get_by_dataSource_id_and_run_id_interval(self, dataSource_id, run_id, start, end, session):
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(
+            self.entity_model.run_id == run_id).filter(self.entity_model.receiving_start >= start).filter(
+            self.entity_model.receiving_start <= end).order_by(self.entity_model.receiving_start).all()
 
 class FloatDataRepository(Repository):
     """
@@ -426,8 +437,13 @@ class FloatDataRepository(Repository):
         raise NotImplementedError("Not available!")
 
     def get_by_dataSource_id_and_run_id(self, dataSource_id, run_id, session):
-        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(self.entity_model.run_id == run_id).all()
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(
+            self.entity_model.run_id == run_id).order_by(self.entity_model.receiving_done).all()
 
+    def get_by_dataSource_id_and_run_id_interval(self, dataSource_id, run_id, start, end, session):
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(
+            self.entity_model.run_id == run_id).filter(self.entity_model.receiving_start >= start).filter(
+            self.entity_model.receiving_start <= end).order_by(self.entity_model.receiving_start).all()
 
 class StringDataRepository(Repository):
     """
@@ -441,8 +457,13 @@ class StringDataRepository(Repository):
         raise NotImplementedError("Not available!")
 
     def get_by_dataSource_id_and_run_id(self, dataSource_id, run_id, session):
-        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(self.entity_model.run_id == run_id).all()
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(
+            self.entity_model.run_id == run_id).order_by(self.entity_model.receiving_done).all()
 
+    def get_by_dataSource_id_and_run_id_interval(self, dataSource_id, run_id, start, end, session):
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(
+            self.entity_model.run_id == run_id).filter(self.entity_model.receiving_start >= start).filter(
+            self.entity_model.receiving_start <= end).order_by(self.entity_model.receiving_start).all()
 
 class ByteDataRepository(Repository):
     """
@@ -456,7 +477,13 @@ class ByteDataRepository(Repository):
         raise NotImplementedError("Not available!")
 
     def get_by_dataSource_id_and_run_id(self, dataSource_id, run_id, session):
-        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(self.entity_model.run_id == run_id).all()
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(
+            self.entity_model.run_id == run_id).order_by(self.entity_model.receiving_done).all()
+
+    def get_by_dataSource_id_and_run_id_interval(self, dataSource_id, run_id, start, end, session):
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(
+            self.entity_model.run_id == run_id).filter(self.entity_model.receiving_start >= start).filter(
+            self.entity_model.receiving_start <= end).order_by(self.entity_model.receiving_start).all()
 
 
 class ImageDataRepository(Repository):
@@ -471,4 +498,10 @@ class ImageDataRepository(Repository):
         raise NotImplementedError("Not available!")
 
     def get_by_dataSource_id_and_run_id(self, dataSource_id, run_id, session):
-        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(self.entity_model.run_id == run_id).all()
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(
+            self.entity_model.run_id == run_id).order_by(self.entity_model.receiving_done).all()
+
+    def get_by_dataSource_id_and_run_id_interval(self, dataSource_id, run_id, start, end, session):
+        return session.query(self.entity_model).filter(self.entity_model.data_source_id == dataSource_id).filter(
+            self.entity_model.run_id == run_id).filter(self.entity_model.receiving_start >= start).filter(
+            self.entity_model.receiving_start <= end).order_by(self.entity_model.receiving_start).all()

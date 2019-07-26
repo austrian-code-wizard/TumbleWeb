@@ -776,6 +776,60 @@ class TumbleWebLogic(BusinessLogic):
             return None
 
     @execute_in_session
+    def get_longdatapoints_by_dataSource_and_run_interval(self, dataSource_id, run_id, start, end, session=None):
+        longdata_dao = self.longData_repository.get_by_dataSource_id_and_run_id_interval(dataSource_id, run_id, session, start, end)
+        if longdata_dao is not None:
+            longdata_dto = LongDataDTO.create_from_dao_list(longdata_dao)
+            return longdata_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_intdatapoints_by_dataSource_and_run_interval(self, dataSource_id, run_id, start, end, session=None):
+        intdata_dao = self.intData_repository.get_by_dataSource_id_and_run_id_interval(dataSource_id, run_id, start, end, session)
+        if intdata_dao is not None:
+            intdata_dto = IntDataDTO.create_from_dao_list(intdata_dao)
+            return intdata_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_floatdatapoints_by_dataSource_and_run_interval(self, dataSource_id, run_id, start, end, session=None):
+        floatdata_dao = self.floatData_repository.get_by_dataSource_id_and_run_id_interval(dataSource_id, run_id, start, end, session)
+        if floatdata_dao is not None:
+            floatdata_dto = FloatDataDTO.create_from_dao_list(floatdata_dao)
+            return floatdata_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_stringdatapoints_by_dataSource_and_run_interval(self, dataSource_id, run_id, start, end, session=None):
+        stringdata_dao = self.stringData_repository.get_by_dataSource_id_and_run_id_interval(dataSource_id, run_id, start, end, session)
+        if stringdata_dao is not None:
+            stringdata_dto = StringDataDTO.create_from_dao_list(stringdata_dao)
+            return stringdata_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_bytedatapoints_by_dataSource_and_run_interval(self, dataSource_id, run_id, start, end, session=None):
+        bytedata_dao = self.byteData_repository.get_by_dataSource_id_and_run_id_interval(dataSource_id, run_id, start, end, session)
+        if bytedata_dao is not None:
+            bytedata_dto = ByteDataDTO.create_from_dao_list(bytedata_dao)
+            return bytedata_dto
+        else:
+            return None
+
+    @execute_in_session
+    def get_imagedatapoints_by_dataSource_and_run_interval(self, dataSource_id, run_id, start, end, session=None):
+        imagedata_dao = self.imageData_repository.get_by_dataSource_id_and_run_id_interval(dataSource_id, run_id, start, end, session)
+        if imagedata_dao is not None:
+            imagedata_dto = ImageDataDTO.create_from_dao_list(imagedata_dao)
+            return imagedata_dto
+        else:
+            return None
+
+    @execute_in_session
     def get_longdatapoint(self, datapoint_id, session=None):
         data_dao = self.longData_repository.get_entity(datapoint_id, session)
         if data_dao is not None:

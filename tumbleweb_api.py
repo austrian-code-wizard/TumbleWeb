@@ -9,7 +9,7 @@ from marshmallow import ValidationError
 from functools import wraps
 from model.enums import DType
 from flask_cors import CORS
-from datetime import datetime
+from datetime import datetime, timezone
 import requests
 
 
@@ -605,6 +605,63 @@ def get_datapoints_by_dataSource_and_run(dataSource_id, run_id):
         return jsonify(result)
     elif dataSource.dtype == DType.Image:
         datapoints = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_imagedatapoints_by_dataSource_and_run(dataSource_id, run_id)
+        if datapoints is None:
+            return jsonify({"info": f"No datapoints for data source {dataSource_id} and run {run_id} exist."}), 400
+        result = app.config["TUMBLEWEB_IMAGEDATA_SCHEMA"].dump(datapoints, many=True)
+        return jsonify(result)
+    else:
+        return jsonify({"info": f"Data source {dataSource_id} has an invalid dtype."}), 400
+
+
+@app.route("/get-datapoints-by-dataSource-and-run-interval/<int:dataSource_id>/<int:run_id>/<string:start>/<string:end>", methods=["GET"])
+@handle_exception
+def get_datapoints_by_dataSource_and_run_interval(dataSource_id, run_id, start, end):
+    if start != "null":
+        start = datetime.fromisoformat(start)
+    else:
+        start = datetime.fromisoformat('1970-01-01T00:00:00+00:00')
+    if end != "null":
+        end = datetime.fromisoformat(end)
+    else:
+        end = datetime.now(timezone.utc)
+    dataSource = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_dataSource(dataSource_id)
+    if dataSource is None:
+        return jsonify({"info": f"No dataSource with id {dataSource_id} exists."}), 400
+    run = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_run(run_id)
+    if run is None:
+        return jsonify({"info": f"No run with id {run_id} exists."}), 400
+    if dataSource.dtype == DType.Long:
+        datapoints = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_longdatapoints_by_dataSource_and_run_interval(dataSource_id, run_id, start, end)
+        if datapoints is None:
+            return jsonify({"info": f"No datapoints for data source {dataSource_id} and run {run_id} exist."}), 400
+        result = app.config["TUMBLEWEB_LONGDATA_SCHEMA"].dump(datapoints, many=True)
+        return jsonify(result)
+    elif dataSource.dtype == DType.Int:
+        datapoints = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_intdatapoints_by_dataSource_and_run_interval(dataSource_id, run_id, start, end)
+        if datapoints is None:
+            return jsonify({"info": f"No datapoints for data source {dataSource_id} and run {run_id} exist."}), 400
+        result = app.config["TUMBlEWEB_INTDATA_SCHEMA"].dump(datapoints, many=True)
+        return jsonify(result)
+    elif dataSource.dtype == DType.Float:
+        datapoints = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_floatdatapoints_by_dataSource_and_run_interval(dataSource_id, run_id, start, end)
+        if datapoints is None:
+            return jsonify({"info": f"No datapoints for data source {dataSource_id} and run {run_id} exist."}), 400
+        result = app.config["TUMBLEWEB_FLOATDATA_SCHEMA"].dump(datapoints, many=True)
+        return jsonify(result)
+    elif dataSource.dtype == DType.String:
+        datapoints = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_stringdatapoints_by_dataSource_and_run_interval(dataSource_id, run_id, start, end)
+        if datapoints is None:
+            return jsonify({"info": f"No datapoints for data source {dataSource_id} and run {run_id} exist."}), 400
+        result = app.config["TUMBLEWEB_STRINGDATA_SCHEMA"].dump(datapoints, many=True)
+        return jsonify(result)
+    elif dataSource.dtype == DType.Byte:
+        datapoints = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_bytedatapoints_by_dataSource_and_run_interval(dataSource_id, run_id, start, end)
+        if datapoints is None:
+            return jsonify({"info": f"No datapoints for data source {dataSource_id} and run {run_id} exist."}), 400
+        result = app.config["TUMBLEWEB_BYTEDATA_SCHEMA"].dump(datapoints, many=True)
+        return jsonify(result)
+    elif dataSource.dtype == DType.Image:
+        datapoints = app.config["TUMBLEWEB_BUSINESS_LOGIC"].get_imagedatapoints_by_dataSource_and_run_interval(dataSource_id, run_id, start, end)
         if datapoints is None:
             return jsonify({"info": f"No datapoints for data source {dataSource_id} and run {run_id} exist."}), 400
         result = app.config["TUMBLEWEB_IMAGEDATA_SCHEMA"].dump(datapoints, many=True)
