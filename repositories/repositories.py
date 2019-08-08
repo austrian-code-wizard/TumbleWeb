@@ -425,6 +425,7 @@ class IntDataRepository(Repository):
             self.entity_model.run_id == run_id).filter(self.entity_model.receiving_start >= start).filter(
             self.entity_model.receiving_start <= end).order_by(self.entity_model.receiving_start).all()
 
+
 class FloatDataRepository(Repository):
     """
     A repository for Float data.

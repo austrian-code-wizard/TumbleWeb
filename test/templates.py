@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-import base64
 
 tumbleweed_json_template = {
             "address": "1234567890123456",

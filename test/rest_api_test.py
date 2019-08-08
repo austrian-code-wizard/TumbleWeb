@@ -56,7 +56,6 @@ class RestApiTest(unittest.TestCase):
         self.bytedatapoint_json = bytedatapoint_json_template.copy()
         self.imagedatapoint_json = imagedatapoint_json_template.copy()
 
-
     def test_add_tumbleweed(self):
         response = self.app.post("/add-tumbleweed", json=self.tumbleweed_json)
         self.assertEqual(response.status, "200 OK")
